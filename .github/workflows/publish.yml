@@ -22,11 +22,15 @@ jobs:
       - name: Install Python 3.13
         run: uv python install 3.13
       - name: Build
+        working-directory: libs/alibabacloud_mysql
         run: uv build
       # Check that basic features work and we didn't miss to include crucial files
       - name: Smoke test (wheel)
+        working-directory: libs/alibabacloud_mysql
         run: uv run --isolated --no-project --with dist/*.whl tests/smoke_test.py
       - name: Smoke test (source distribution)
+        working-directory: libs/alibabacloud_mysql
         run: uv run --isolated --no-project --with dist/*.tar.gz tests/smoke_test.py
       - name: Publish
+        working-directory: libs/alibabacloud_mysql
         run: uv publish
