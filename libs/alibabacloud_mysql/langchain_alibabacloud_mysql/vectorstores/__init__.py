@@ -5,4 +5,3 @@ from langchain_alibabacloud_mysql.vectorstores.alibabacloud_mysql import (
 __all__ = [
     "AlibabaCloudMySQL",
 ]
-

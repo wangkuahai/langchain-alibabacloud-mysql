@@ -19,7 +19,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, AsyncGenerator, Generator
 
 import pytest
-
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 
@@ -29,7 +28,8 @@ try:
 
     # Try to find .env file in project root or libs directory
     env_paths = [
-        Path(__file__).parent.parent.parent.parent.parent.parent / ".env",  # project root
+        # project root
+        Path(__file__).parent.parent.parent.parent.parent.parent / ".env",
         Path(__file__).parent.parent.parent.parent / ".env",  # libs/alibabacloud_mysql
         Path(__file__).parent.parent.parent / ".env",  # tests
         Path(__file__).parent.parent / ".env",  # integration_tests
@@ -61,7 +61,7 @@ _PREFIX = "    "
 
 def _log(msg: str = "", prefix: bool = True, newline_before: bool = False) -> None:
     """Print formatted log message for test output.
-    
+
     Args:
         msg: Message to print.
         prefix: Whether to add prefix for alignment.
@@ -110,7 +110,7 @@ pytestmark = pytest.mark.skipif(
 @pytest.mark.integration
 def test_mysql_connection() -> None:
     """Test MySQL connection - run this first to verify connectivity.
-    
+
     This test verifies:
     1. Network connectivity to the MySQL server
     2. Authentication credentials are correct
@@ -145,24 +145,24 @@ def test_mysql_connection() -> None:
             connection_timeout=10,
         )
         assert conn.is_connected(), "Connection should be established"
-        
+
         cursor = conn.cursor(dictionary=True)
-        
+
         # Get MySQL version
         cursor.execute("SELECT VERSION() as version")
         result = cursor.fetchone()
         version = result["version"] if result else "Unknown"
-        _log(f"✅ Connected successfully!")
+        _log("Connected successfully!")
         _log(f"   MySQL Version: {version}")
-        
+
         # Get database info
         cursor.execute("SELECT DATABASE() as db")
         result = cursor.fetchone()
         current_db = result["db"] if result else "Unknown"
         _log(f"   Current Database: {current_db}")
-        
+
         cursor.close()
-        
+
     except mysql.connector.Error as e:
         _log()
         _log("─" * 56)
@@ -186,13 +186,13 @@ def test_mysql_connection() -> None:
 @pytest.mark.integration
 def test_vector_support() -> None:
     """Test if MySQL server supports vector operations.
-    
+
     This test verifies:
     1. VEC_FromText() function is available
     2. VEC_DISTANCE_COSINE() function is available
     3. VEC_DISTANCE_EUCLIDEAN() function is available
     4. VECTOR data type is supported
-    
+
     Requirements:
     - AlibabaCloud RDS MySQL 8.0.36+
     - rds_release_date >= 20251031
@@ -225,7 +225,9 @@ def test_vector_support() -> None:
         # Test 1: VEC_FromText function
         _log("1. Testing VEC_FromText() function...", newline_before=True)
         try:
-            cursor.execute("SELECT VEC_FromText('[1.0, 2.0, 3.0]') IS NOT NULL as supported")
+            cursor.execute(
+                "SELECT VEC_FromText('[1.0, 2.0, 3.0]') IS NOT NULL as supported"
+            )
             result = cursor.fetchone()
             if result and result.get("supported"):
                 _log("   ✅ VEC_FromText() is available")
@@ -275,18 +277,18 @@ def test_vector_support() -> None:
                 )
             """)
             _log("   ✅ VECTOR data type is supported")
-            
+
             # Test insert
             cursor.execute(f"""
                 INSERT INTO {test_table} (id, embedding) 
                 VALUES (1, VEC_FromText('[1.0, 2.0, 3.0]'))
             """)
             _log("   ✅ Vector insert works")
-            
+
             # Cleanup
             cursor.execute(f"DROP TABLE {test_table}")
             conn.commit()
-            
+
         except mysql.connector.Error as e:
             pytest.fail(f"VECTOR data type not supported: {e}")
 
@@ -302,11 +304,11 @@ def test_vector_support() -> None:
                 )
             """)
             _log("   ✅ VECTOR INDEX is supported")
-            
+
             # Cleanup
             cursor.execute(f"DROP TABLE {test_table}")
             conn.commit()
-            
+
         except mysql.connector.Error as e:
             pytest.fail(f"VECTOR INDEX not supported: {e}")
 
@@ -314,7 +316,7 @@ def test_vector_support() -> None:
         _log("─" * 56)
         _log("✅ All vector features are supported!")
         _log("─" * 56)
-        
+
         cursor.close()
 
     except mysql.connector.Error as e:
@@ -331,7 +333,7 @@ def test_vector_support() -> None:
 
 def get_dashscope_embeddings() -> Embeddings:
     """Get DashScope embeddings model.
-    
+
     Uses text-embedding-v4 model from Alibaba Cloud DashScope.
     Dimension: 1024 (default) or 3072 (with dimensions parameter)
     """
@@ -440,10 +442,11 @@ def test_similarity_search(vectorstore: "AlibabaCloudMySQL") -> None:
 
     assert len(results) == 3
     assert all(isinstance(doc, Document) for doc in results)
-    # The car-related text should not be in top 3
-    car_in_results = any("汽车" in doc.page_content for doc in results)
     # Note: With real embeddings, semantic search should work better
-    _log(f"Search results: {[doc.page_content for doc in results]}", newline_before=True)
+    _log(
+        f"Search results: {[doc.page_content for doc in results]}",
+        newline_before=True,
+    )
 
 
 @pytest.mark.integration
@@ -754,7 +757,10 @@ def test_filter_with_nin_operator(vectorstore: "AlibabaCloudMySQL") -> None:
         filter={"status": {"$nin": ["archived", "deleted"]}},
     )
 
-    _log("$nin filter results (status not in ['archived', 'deleted']):", newline_before=True)
+    _log(
+        "$nin filter results (status not in ['archived', 'deleted']):",
+        newline_before=True,
+    )
     for doc in results:
         _log(f"  - {doc.page_content}: status={doc.metadata.get('status')}")
 
@@ -815,9 +821,16 @@ def test_filter_combined_with_multiple_fields(vectorstore: "AlibabaCloudMySQL") 
         },
     )
 
-    _log("Combined filter results (brand='apple' AND price > 7000):", newline_before=True)
+    _log(
+        "Combined filter results (brand='apple' AND price > 7000):",
+        newline_before=True,
+    )
     for doc in results:
-        _log(f"  - {doc.page_content}: brand={doc.metadata.get('brand')}, price={doc.metadata.get('price')}")
+        _log(
+            f"  - {doc.page_content}: "
+            f"brand={doc.metadata.get('brand')}, "
+            f"price={doc.metadata.get('price')}"
+        )
 
     assert len(results) == 1
     assert results[0].metadata.get("brand") == "apple"
@@ -919,7 +932,10 @@ def test_search_by_metadata_with_in_operator(vectorstore: "AlibabaCloudMySQL") -
         limit=10,
     )
 
-    _log("search_by_metadata results (status in ['active', 'pending']):", newline_before=True)
+    _log(
+        "search_by_metadata results (status in ['active', 'pending']):",
+        newline_before=True,
+    )
     for doc in results:
         _log(f"  - {doc.page_content}: status={doc.metadata.get('status')}")
 
@@ -988,11 +1004,12 @@ def test_delete_by_metadata(vectorstore: "AlibabaCloudMySQL") -> None:
     assert vectorstore.count() == 3
 
     # Delete documents with status='deleted'
-    deleted_count = vectorstore.delete_by_metadata(
-        filter={"status": "deleted"}
-    )
+    deleted_count = vectorstore.delete_by_metadata(filter={"status": "deleted"})
 
-    _log(f"Deleted {deleted_count} documents with status='deleted'", newline_before=True)
+    _log(
+        f"Deleted {deleted_count} documents with status='deleted'",
+        newline_before=True,
+    )
 
     assert deleted_count == 2
     assert vectorstore.count() == 1
@@ -1018,9 +1035,7 @@ def test_delete_by_metadata_with_operators(vectorstore: "AlibabaCloudMySQL") -> 
     assert vectorstore.count() == 4
 
     # Delete low value items (value < 200)
-    deleted_count = vectorstore.delete_by_metadata(
-        filter={"value": {"$lt": 200}}
-    )
+    deleted_count = vectorstore.delete_by_metadata(filter={"value": {"$lt": 200}})
 
     _log(f"Deleted {deleted_count} documents with value < 200", newline_before=True)
 
@@ -1152,7 +1167,9 @@ def test_add_documents_empty_list(vectorstore: "AlibabaCloudMySQL") -> None:
 
 
 @pytest.mark.integration
-def test_add_embeddings(vectorstore: "AlibabaCloudMySQL", embeddings: Embeddings) -> None:
+def test_add_embeddings(
+    vectorstore: "AlibabaCloudMySQL", embeddings: Embeddings
+) -> None:
     """Test adding pre-computed embeddings to the vector store."""
     texts = ["预计算嵌入测试1", "预计算嵌入测试2", "预计算嵌入测试3"]
 
@@ -1229,7 +1246,9 @@ def test_add_embeddings_searchable(
     assert len(results) == 3
     # Most results should be AI-related
     ai_results = [doc for doc in results if doc.metadata.get("topic") == "AI"]
-    assert len(ai_results) >= 2, f"Expected at least 2 AI results, got {len(ai_results)}"
+    assert len(ai_results) >= 2, (
+        f"Expected at least 2 AI results, got {len(ai_results)}"
+    )
 
 
 @pytest.mark.integration
@@ -1258,7 +1277,9 @@ def test_add_embeddings_no_metadata(
     retrieved = vectorstore.get_by_ids(ids)
     assert len(retrieved) == 2
     for doc in retrieved:
-        assert doc.metadata == {} or doc.metadata is None or doc.metadata == {"id": doc.id}
+        assert (
+            doc.metadata == {} or doc.metadata is None or doc.metadata == {"id": doc.id}
+        )
 
 
 @pytest.mark.integration
@@ -1340,8 +1361,16 @@ def test_upsert_update_existing_documents(vectorstore: "AlibabaCloudMySQL") -> N
     """Test upsert updates existing documents."""
     # First, insert documents
     initial_docs = [
-        Document(id="upsert-update-1", page_content="原始内容1", metadata={"version": 1}),
-        Document(id="upsert-update-2", page_content="原始内容2", metadata={"version": 1}),
+        Document(
+            id="upsert-update-1",
+            page_content="原始内容1",
+            metadata={"version": 1},
+        ),
+        Document(
+            id="upsert-update-2",
+            page_content="原始内容2",
+            metadata={"version": 1},
+        ),
     ]
     vectorstore.upsert(initial_docs)
 
@@ -1349,8 +1378,16 @@ def test_upsert_update_existing_documents(vectorstore: "AlibabaCloudMySQL") -> N
 
     # Now upsert with updated content
     updated_docs = [
-        Document(id="upsert-update-1", page_content="更新后的内容1", metadata={"version": 2}),
-        Document(id="upsert-update-2", page_content="更新后的内容2", metadata={"version": 2}),
+        Document(
+            id="upsert-update-1",
+            page_content="更新后的内容1",
+            metadata={"version": 2},
+        ),
+        Document(
+            id="upsert-update-2",
+            page_content="更新后的内容2",
+            metadata={"version": 2},
+        ),
     ]
     ids = vectorstore.upsert(updated_docs)
 
@@ -1376,14 +1413,22 @@ def test_upsert_mixed_insert_and_update(vectorstore: "AlibabaCloudMySQL") -> Non
     """Test upsert with mix of new and existing documents."""
     # First, insert one document
     initial_docs = [
-        Document(id="mixed-existing", page_content="已存在的文档", metadata={"type": "old"}),
+        Document(
+            id="mixed-existing",
+            page_content="已存在的文档",
+            metadata={"type": "old"},
+        ),
     ]
     vectorstore.upsert(initial_docs)
     assert vectorstore.count() == 1
 
     # Upsert with one existing and one new document
     mixed_docs = [
-        Document(id="mixed-existing", page_content="更新已存在的文档", metadata={"type": "updated"}),
+        Document(
+            id="mixed-existing",
+            page_content="更新已存在的文档",
+            metadata={"type": "updated"},
+        ),
         Document(id="mixed-new", page_content="新增的文档", metadata={"type": "new"}),
     ]
     ids = vectorstore.upsert(mixed_docs)
@@ -1442,8 +1487,16 @@ def test_upsert_with_explicit_ids(vectorstore: "AlibabaCloudMySQL") -> None:
 def test_upsert_searchable(vectorstore: "AlibabaCloudMySQL") -> None:
     """Test that upserted documents are searchable."""
     documents = [
-        Document(id="search-1", page_content="机器学习是人工智能的分支", metadata={"topic": "AI"}),
-        Document(id="search-2", page_content="今天天气很好", metadata={"topic": "weather"}),
+        Document(
+            id="search-1",
+            page_content="机器学习是人工智能的分支",
+            metadata={"topic": "AI"},
+        ),
+        Document(
+            id="search-2",
+            page_content="今天天气很好",
+            metadata={"topic": "weather"},
+        ),
     ]
 
     vectorstore.upsert(documents)
@@ -1528,14 +1581,25 @@ async def test_aadd_texts_basic(async_vectorstore: "AlibabaCloudMySQL") -> None:
 async def test_aadd_documents_basic(async_vectorstore: "AlibabaCloudMySQL") -> None:
     """Test async add_documents functionality."""
     documents = [
-        Document(id="async-doc-1", page_content="异步文档1", metadata={"type": "async"}),
-        Document(id="async-doc-2", page_content="异步文档2", metadata={"type": "async"}),
+        Document(
+            id="async-doc-1",
+            page_content="异步文档1",
+            metadata={"type": "async"},
+        ),
+        Document(
+            id="async-doc-2",
+            page_content="异步文档2",
+            metadata={"type": "async"},
+        ),
     ]
 
     ids = await async_vectorstore.aadd_documents(documents)
 
     assert ids == ["async-doc-1", "async-doc-2"]
-    _log(f"aadd_documents: Added {len(ids)} documents asynchronously", newline_before=True)
+    _log(
+        f"aadd_documents: Added {len(ids)} documents asynchronously",
+        newline_before=True,
+    )
 
 
 @pytest.mark.integration
@@ -1553,7 +1617,10 @@ async def test_aadd_embeddings_basic(async_vectorstore: "AlibabaCloudMySQL") -> 
     )
 
     assert len(ids) == 2
-    _log(f"aadd_embeddings: Added {len(ids)} embeddings asynchronously", newline_before=True)
+    _log(
+        f"aadd_embeddings: Added {len(ids)} embeddings asynchronously",
+        newline_before=True,
+    )
 
 
 @pytest.mark.integration
@@ -1588,8 +1655,16 @@ async def test_asimilarity_search_basic(async_vectorstore: "AlibabaCloudMySQL") 
     """Test async similarity search."""
     # Add documents first
     documents = [
-        Document(id="search-1", page_content="人工智能是未来的发展方向", metadata={"topic": "AI"}),
-        Document(id="search-2", page_content="今天的天气非常好", metadata={"topic": "weather"}),
+        Document(
+            id="search-1",
+            page_content="人工智能是未来的发展方向",
+            metadata={"topic": "AI"},
+        ),
+        Document(
+            id="search-2",
+            page_content="今天的天气非常好",
+            metadata={"topic": "weather"},
+        ),
     ]
     await async_vectorstore.aadd_documents(documents)
 
@@ -1604,7 +1679,9 @@ async def test_asimilarity_search_basic(async_vectorstore: "AlibabaCloudMySQL") 
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_asimilarity_search_with_score(async_vectorstore: "AlibabaCloudMySQL") -> None:
+async def test_asimilarity_search_with_score(
+    async_vectorstore: "AlibabaCloudMySQL",
+) -> None:
     """Test async similarity search with score."""
     documents = [
         Document(id="score-1", page_content="深度学习神经网络", metadata={}),
@@ -1665,7 +1742,9 @@ async def test_aget_by_ids_basic(async_vectorstore: "AlibabaCloudMySQL") -> None
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_amax_marginal_relevance_search(async_vectorstore: "AlibabaCloudMySQL") -> None:
+async def test_amax_marginal_relevance_search(
+    async_vectorstore: "AlibabaCloudMySQL",
+) -> None:
     """Test async MMR search."""
     documents = [
         Document(id="mmr-1", page_content="机器学习模型训练", metadata={}),

@@ -26,7 +26,6 @@ from typing import (
     Sequence,
     Tuple,
     Type,
-    Union,
 )
 
 from langchain_core.documents import Document
@@ -217,7 +216,7 @@ class AlibabaCloudMySQL(VectorStore):
             "connect_timeout": 30,  # Connection timeout in seconds
             "connection_timeout": 30,  # Alias for connect_timeout
         }
-        self._pool = mysql.connector.pooling.MySQLConnectionPool(**pool_config)
+        self._pool = mysql.connector.pooling.MySQLConnectionPool(**pool_config)  # type: ignore[arg-type]
 
         # Async pool will be lazily initialized
         self._async_pool: Optional[Any] = None
@@ -257,8 +256,7 @@ class AlibabaCloudMySQL(VectorStore):
             )
         if len(table_name) > 64:
             raise ValueError(
-                f"Table name too long: {table_name}. "
-                "Maximum length is 64 characters."
+                f"Table name too long: {table_name}. Maximum length is 64 characters."
             )
         return table_name
 
@@ -273,14 +271,15 @@ class AlibabaCloudMySQL(VectorStore):
                 pool = self._pool
                 self._pool = None  # type: ignore
 
-                # Access the internal queue directly to avoid blocking on get_connection()
+                # Access the internal queue directly to avoid blocking
                 # MySQL Connector's pool stores connections in _cnx_queue
                 if hasattr(pool, "_cnx_queue"):
                     while not pool._cnx_queue.empty():
                         try:
                             cnx = pool._cnx_queue.get_nowait()
                             if cnx and hasattr(cnx, "disconnect"):
-                                # Use disconnect() instead of close() to avoid reset_session()
+                                # Use disconnect() instead of close()
+                                # to avoid reset_session()
                                 cnx.disconnect()
                         except Exception:
                             break
@@ -368,7 +367,7 @@ class AlibabaCloudMySQL(VectorStore):
                 return self._async_pool
 
             try:
-                import aiomysql
+                import aiomysql  # type: ignore[import-untyped]
             except ImportError as e:
                 raise ImportError(
                     "Could not import aiomysql. "
@@ -488,14 +487,16 @@ class AlibabaCloudMySQL(VectorStore):
                 if not result or not result.get("vector_support"):
                     raise ValueError(
                         "RDS MySQL Vector functions are not available. "
-                        "Please ensure you're using RDS MySQL 8.0.36+ with Vector support."
+                        "Please ensure you're using RDS MySQL 8.0.36+ "
+                        "with Vector support."
                     )
 
             except Exception as e:
                 if "FUNCTION" in str(e) and "VEC_FromText" in str(e):
                     raise ValueError(
                         "RDS MySQL Vector functions are not available. "
-                        "Please ensure you're using RDS MySQL 8.0.36+ with Vector support."
+                        "Please ensure you're using RDS MySQL 8.0.36+ "
+                        "with Vector support."
                     ) from e
                 raise
 
@@ -642,9 +643,7 @@ class AlibabaCloudMySQL(VectorStore):
                     if op in ("$in", "$nin"):
                         # Handle IN/NOT IN with list values
                         if not isinstance(op_value, (list, tuple)):
-                            raise ValueError(
-                                f"Operator {op} requires a list value"
-                            )
+                            raise ValueError(f"Operator {op} requires a list value")
                         placeholders = ",".join(["%s"] * len(op_value))
                         conditions.append(f"{json_path_str} {sql_op} ({placeholders})")
                         params.extend([str(v) for v in op_value])
@@ -828,8 +827,13 @@ class AlibabaCloudMySQL(VectorStore):
                 from langchain_core.documents import Document
 
                 documents = [
-                    Document(page_content="Hello world", metadata={"source": "web"}),
-                    Document(page_content="LangChain is great", metadata={"source": "doc"}),
+                    Document(
+                        page_content="Hello world", metadata={"source": "web"}
+                    ),
+                    Document(
+                        page_content="LangChain is great",
+                        metadata={"source": "doc"},
+                    ),
                 ]
                 ids = vectorstore.add_documents(documents)
         """
@@ -972,8 +976,7 @@ class AlibabaCloudMySQL(VectorStore):
             )
         if len(texts) != len(ids):
             raise ValueError(
-                f"Number of texts ({len(texts)}) must match "
-                f"number of ids ({len(ids)})"
+                f"Number of texts ({len(texts)}) must match number of ids ({len(ids)})"
             )
 
         # Insert in batches
@@ -997,9 +1000,7 @@ class AlibabaCloudMySQL(VectorStore):
 
                 cursor.executemany(sql, batch_values)
 
-        logger.info(
-            "Added %d embeddings to table %s", len(texts), self._table_name
-        )
+        logger.info("Added %d embeddings to table %s", len(texts), self._table_name)
         return ids
 
     async def aadd_embeddings(
@@ -1060,8 +1061,7 @@ class AlibabaCloudMySQL(VectorStore):
             )
         if len(texts) != len(ids):
             raise ValueError(
-                f"Number of texts ({len(texts)}) must match "
-                f"number of ids ({len(ids)})"
+                f"Number of texts ({len(texts)}) must match number of ids ({len(ids)})"
             )
 
         # Insert in batches
@@ -1085,9 +1085,7 @@ class AlibabaCloudMySQL(VectorStore):
 
                 await cursor.executemany(sql, batch_values)
 
-        logger.info(
-            "Added %d embeddings to table %s", len(texts), self._table_name
-        )
+        logger.info("Added %d embeddings to table %s", len(texts), self._table_name)
         return ids
 
     def upsert(
@@ -1127,7 +1125,11 @@ class AlibabaCloudMySQL(VectorStore):
 
                 # Update existing documents (same IDs, new content)
                 updated_docs = [
-                    Document(id="doc1", page_content="Updated Hello", metadata={"k": "v1_new"}),
+                    Document(
+                        id="doc1",
+                        page_content="Updated Hello",
+                        metadata={"k": "v1_new"},
+                    ),
                 ]
                 vectorstore.upsert(updated_docs)
         """
@@ -1182,7 +1184,9 @@ class AlibabaCloudMySQL(VectorStore):
 
                 cursor.executemany(sql, batch_values)
 
-        logger.info("Upserted %d documents to table %s", len(documents), self._table_name)
+        logger.info(
+            "Upserted %d documents to table %s", len(documents), self._table_name
+        )
         return ids
 
     async def aupsert(
@@ -1264,7 +1268,9 @@ class AlibabaCloudMySQL(VectorStore):
 
                 await cursor.executemany(sql, batch_values)
 
-        logger.info("Upserted %d documents to table %s", len(documents), self._table_name)
+        logger.info(
+            "Upserted %d documents to table %s", len(documents), self._table_name
+        )
         return ids
 
     def similarity_search(
@@ -2181,9 +2187,7 @@ class AlibabaCloudMySQL(VectorStore):
     async def acount(self) -> int:
         """Async get the number of vectors in the table."""
         async with self._aget_cursor() as cursor:
-            await cursor.execute(
-                f"SELECT COUNT(*) as count FROM `{self._table_name}`"
-            )
+            await cursor.execute(f"SELECT COUNT(*) as count FROM `{self._table_name}`")
             result = await cursor.fetchone()
             return result["count"] if result else 0
 

@@ -153,7 +153,17 @@ def test_filter_operators_defined() -> None:
         FILTER_OPERATORS,
     )
 
-    expected_operators = ["$eq", "$ne", "$gt", "$gte", "$lt", "$lte", "$in", "$nin", "$like"]
+    expected_operators = [
+        "$eq",
+        "$ne",
+        "$gt",
+        "$gte",
+        "$lt",
+        "$lte",
+        "$in",
+        "$nin",
+        "$like",
+    ]
     for op in expected_operators:
         assert op in FILTER_OPERATORS, f"Operator {op} not found"
 
@@ -167,9 +177,7 @@ def test_build_filter_clause_simple() -> None:
     with patch.object(AlibabaCloudMySQL, "__init__", lambda self, **kwargs: None):
         store = AlibabaCloudMySQL()
 
-        where, params = store._build_filter_clause(
-            filter={"category": "phone"}
-        )
+        where, params = store._build_filter_clause(filter={"category": "phone"})
 
         assert "WHERE" in where
         assert "JSON_UNQUOTE" in where
@@ -224,30 +232,22 @@ def test_build_filter_clause_with_operators() -> None:
         store = AlibabaCloudMySQL()
 
         # Test $gt operator with numeric value (should preserve type)
-        where, params = store._build_filter_clause(
-            filter={"price": {"$gt": 1000}}
-        )
+        where, params = store._build_filter_clause(filter={"price": {"$gt": 1000}})
         assert "> %s" in where
         assert params == [1000]  # Numeric value preserved
         assert "JSON_EXTRACT" in where  # Uses JSON_EXTRACT for numeric comparison
 
         # Test $lt operator with numeric value
-        where, params = store._build_filter_clause(
-            filter={"price": {"$lt": 500}}
-        )
+        where, params = store._build_filter_clause(filter={"price": {"$lt": 500}})
         assert "< %s" in where
         assert params == [500]  # Numeric value preserved
 
         # Test $gte operator
-        where, params = store._build_filter_clause(
-            filter={"price": {"$gte": 100}}
-        )
+        where, params = store._build_filter_clause(filter={"price": {"$gte": 100}})
         assert ">= %s" in where
 
         # Test $lte operator
-        where, params = store._build_filter_clause(
-            filter={"price": {"$lte": 200}}
-        )
+        where, params = store._build_filter_clause(filter={"price": {"$lte": 200}})
         assert "<= %s" in where
 
         # Test $ne operator with string value
@@ -303,10 +303,7 @@ def test_build_filter_clause_multiple_conditions() -> None:
         store = AlibabaCloudMySQL()
 
         where, params = store._build_filter_clause(
-            filter={
-                "category": "phone",
-                "price": {"$gt": 100, "$lt": 1000}
-            }
+            filter={"category": "phone", "price": {"$gt": 100, "$lt": 1000}}
         )
 
         assert "WHERE" in where
@@ -325,9 +322,7 @@ def test_build_filter_clause_invalid_operator() -> None:
         store = AlibabaCloudMySQL()
 
         with pytest.raises(ValueError, match="Unsupported filter operator"):
-            store._build_filter_clause(
-                filter={"price": {"$invalid": 100}}
-            )
+            store._build_filter_clause(filter={"price": {"$invalid": 100}})
 
 
 def test_build_filter_clause_in_requires_list() -> None:
@@ -340,9 +335,7 @@ def test_build_filter_clause_in_requires_list() -> None:
         store = AlibabaCloudMySQL()
 
         with pytest.raises(ValueError, match="requires a list value"):
-            store._build_filter_clause(
-                filter={"category": {"$in": "not_a_list"}}
-            )
+            store._build_filter_clause(filter={"category": {"$in": "not_a_list"}})
 
 
 def test_build_filter_clause_nin_requires_list() -> None:
@@ -355,9 +348,7 @@ def test_build_filter_clause_nin_requires_list() -> None:
         store = AlibabaCloudMySQL()
 
         with pytest.raises(ValueError, match="requires a list value"):
-            store._build_filter_clause(
-                filter={"status": {"$nin": "single_value"}}
-            )
+            store._build_filter_clause(filter={"status": {"$nin": "single_value"}})
 
 
 def test_build_filter_clause_same_field_multiple_operators() -> None:
@@ -431,8 +422,8 @@ def test_table_name_validation() -> None:
 
 
 def test_add_documents_extracts_content_and_metadata() -> None:
-    """Test that add_documents correctly extracts content and metadata from documents."""
-    from unittest.mock import MagicMock, patch
+    """Test that add_documents extracts content and metadata from documents."""
+    from unittest.mock import patch
 
     from langchain_core.documents import Document
 
@@ -462,7 +453,7 @@ def test_add_documents_extracts_content_and_metadata() -> None:
 
 def test_add_documents_uses_document_ids() -> None:
     """Test that add_documents uses document.id if provided."""
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import patch
 
     from langchain_core.documents import Document
 
@@ -488,7 +479,7 @@ def test_add_documents_uses_document_ids() -> None:
 
 def test_add_documents_generates_ids_when_missing() -> None:
     """Test that add_documents generates UUIDs when document.id is None."""
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import patch
 
     from langchain_core.documents import Document
 
@@ -517,7 +508,7 @@ def test_add_documents_generates_ids_when_missing() -> None:
 
 def test_add_documents_uses_provided_ids_over_document_ids() -> None:
     """Test that explicitly provided ids are used over document.id."""
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import patch
 
     from langchain_core.documents import Document
 
@@ -559,7 +550,7 @@ def test_add_documents_empty_list() -> None:
 
 def test_add_documents_passes_batch_size() -> None:
     """Test that add_documents passes batch_size to add_texts."""
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import patch
 
     from langchain_core.documents import Document
 
@@ -586,7 +577,7 @@ def test_add_documents_passes_batch_size() -> None:
 
 def test_add_embeddings_inserts_correctly() -> None:
     """Test that add_embeddings inserts pre-computed embeddings."""
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import patch
 
     from langchain_alibabacloud_mysql.vectorstores.alibabacloud_mysql import (
         AlibabaCloudMySQL,
@@ -621,7 +612,7 @@ def test_add_embeddings_inserts_correctly() -> None:
 
 def test_add_embeddings_generates_ids() -> None:
     """Test that add_embeddings generates UUIDs when ids not provided."""
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import patch
 
     from langchain_alibabacloud_mysql.vectorstores.alibabacloud_mysql import (
         AlibabaCloudMySQL,
@@ -668,7 +659,7 @@ def test_add_embeddings_empty_list() -> None:
 
 def test_add_embeddings_validates_lengths() -> None:
     """Test that add_embeddings validates that all arrays have same length."""
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import patch
 
     from langchain_alibabacloud_mysql.vectorstores.alibabacloud_mysql import (
         AlibabaCloudMySQL,
@@ -701,8 +692,8 @@ def test_add_embeddings_validates_lengths() -> None:
 
 def test_add_embeddings_generates_default_metadata() -> None:
     """Test that add_embeddings uses empty dict when metadatas not provided."""
-    from unittest.mock import MagicMock, patch
     import json
+    from unittest.mock import patch
 
     from langchain_alibabacloud_mysql.vectorstores.alibabacloud_mysql import (
         AlibabaCloudMySQL,
@@ -731,7 +722,7 @@ def test_add_embeddings_generates_default_metadata() -> None:
 
 def test_add_embeddings_batch_processing() -> None:
     """Test that add_embeddings processes in batches correctly."""
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import patch
 
     from langchain_alibabacloud_mysql.vectorstores.alibabacloud_mysql import (
         AlibabaCloudMySQL,
@@ -750,8 +741,7 @@ def test_add_embeddings_batch_processing() -> None:
 
         # Create 5 text embeddings
         text_embeddings = [
-            (f"Text {i}", [float(i), float(i), float(i)])
-            for i in range(5)
+            (f"Text {i}", [float(i), float(i), float(i)]) for i in range(5)
         ]
 
         # Use batch_size=2, should result in 3 batches (2, 2, 1)
@@ -771,7 +761,7 @@ def test_add_embeddings_batch_processing() -> None:
 
 def test_upsert_with_documents() -> None:
     """Test upsert with documents."""
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import patch
 
     from langchain_core.documents import Document
 
@@ -809,7 +799,7 @@ def test_upsert_with_documents() -> None:
 
 def test_upsert_uses_document_ids() -> None:
     """Test that upsert uses document.id if available."""
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import patch
 
     from langchain_core.documents import Document
 
@@ -841,7 +831,7 @@ def test_upsert_uses_document_ids() -> None:
 
 def test_upsert_generates_ids_when_missing() -> None:
     """Test that upsert generates UUIDs when document.id is None."""
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import patch
 
     from langchain_core.documents import Document
 
@@ -878,7 +868,7 @@ def test_upsert_generates_ids_when_missing() -> None:
 
 def test_upsert_with_explicit_ids() -> None:
     """Test upsert with explicitly provided ids."""
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import patch
 
     from langchain_core.documents import Document
 
@@ -930,7 +920,7 @@ def test_upsert_empty_list() -> None:
 
 def test_upsert_validates_ids_length() -> None:
     """Test that upsert validates ids length matches documents length."""
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import patch
 
     from langchain_core.documents import Document
 
@@ -952,7 +942,7 @@ def test_upsert_validates_ids_length() -> None:
 
 def test_upsert_batch_processing() -> None:
     """Test that upsert processes in batches correctly."""
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import patch
 
     from langchain_core.documents import Document
 
@@ -965,9 +955,7 @@ def test_upsert_batch_processing() -> None:
         store._table_name = "test_table"
         store._embedding = MagicMock()
         store._embedding.embed_documents = MagicMock(
-            return_value=[
-                [float(i), float(i), float(i)] for i in range(5)
-            ]
+            return_value=[[float(i), float(i), float(i)] for i in range(5)]
         )
         store._create_table_if_not_exists = MagicMock()
         store._vector_to_string = lambda v: "[" + ",".join(map(str, v)) + "]"
@@ -1044,7 +1032,7 @@ async def test_aadd_texts_empty_list() -> None:
 @pytest.mark.asyncio
 async def test_aadd_documents_extracts_content() -> None:
     """Test that aadd_documents extracts content from documents."""
-    from unittest.mock import AsyncMock, MagicMock, patch
+    from unittest.mock import AsyncMock, patch
 
     from langchain_core.documents import Document
 
@@ -1090,7 +1078,7 @@ async def test_aadd_documents_uses_document_ids() -> None:
             Document(id="doc-id-2", page_content="Text 2", metadata={}),
         ]
 
-        ids = await store.aadd_documents(documents)
+        await store.aadd_documents(documents)
 
         call_args = store.aadd_texts.call_args
         assert call_args.kwargs["ids"] == ["doc-id-1", "doc-id-2"]
@@ -1244,7 +1232,7 @@ async def test_aupsert_validates_ids_length() -> None:
 @pytest.mark.asyncio
 async def test_asimilarity_search_calls_async_methods() -> None:
     """Test that asimilarity_search uses async search method."""
-    from unittest.mock import AsyncMock, MagicMock, patch
+    from unittest.mock import AsyncMock, patch
 
     from langchain_core.documents import Document
 
@@ -1407,7 +1395,7 @@ async def test_amax_marginal_relevance_search_uses_async() -> None:
             return_value=[Document(page_content="Result", metadata={})]
         )
 
-        results = await store.amax_marginal_relevance_search("query", k=4)
+        await store.amax_marginal_relevance_search("query", k=4)
 
         store._embedding.aembed_query.assert_called_once_with("query")
         store.amax_marginal_relevance_search_by_vector.assert_called_once()
