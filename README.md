@@ -13,8 +13,10 @@ LangChain AlibabaCloud MySQL provides seamless integration between LangChain, a 
 
 ## Requirements
 
+- **Python 3.10+**
 - **AlibabaCloud RDS MySQL 8.0.36+** with Vector support enabled
 - **rds_release_date >= 20251031**
+- **MySQL connector**: `mysql-connector-python>=8.0.0` (included in package dependencies)
 
 ## Features
 
@@ -32,14 +34,33 @@ LangChain AlibabaCloud MySQL provides seamless integration between LangChain, a 
 pip install -U langchain-alibabacloud-mysql
 ```
 
+### Optional Dependencies
+
+For using DashScope embeddings (recommended for Alibaba Cloud):
+
+```bash
+pip install langchain-community dashscope
+```
+
+For running demo tests:
+
+```bash
+pip install python-dotenv
+```
+
 ## Quick Start
+
+### Using DashScope Embeddings (Recommended for Alibaba Cloud)
 
 ```python
 from langchain_alibabacloud_mysql import AlibabaCloudMySQL
-from langchain_openai import OpenAIEmbeddings
+from langchain_community.embeddings import DashScopeEmbeddings
 
-# Initialize embeddings
-embeddings = OpenAIEmbeddings()
+# Initialize DashScope embeddings (Alibaba Cloud's embedding service)
+embeddings = DashScopeEmbeddings(
+    model="text-embedding-v4",
+    dashscope_api_key="your-dashscope-api-key",
+)
 
 # Create vector store
 vectorstore = AlibabaCloudMySQL(
@@ -69,6 +90,17 @@ for doc in results:
 results_with_scores = vectorstore.similarity_search_with_score("cloud services", k=2)
 for doc, score in results_with_scores:
     print(f"[Score: {score:.4f}] {doc.page_content}")
+```
+
+### Using Other Embedding Models
+
+You can also use any LangChain-compatible embedding model:
+
+```python
+from langchain_openai import OpenAIEmbeddings
+
+embeddings = OpenAIEmbeddings()
+# ... rest of the code remains the same
 ```
 
 ## Usage Examples
@@ -161,6 +193,55 @@ vectorstore.drop_table()
 | `pool_size` | int | 5 | Connection pool size |
 | `pre_delete_table` | bool | False | Delete table before creating |
 
+## Demo Tests
+
+The repository includes comprehensive demo tests demonstrating various features:
+
+- **RAG Agent Demo** (`libs/alibabacloud_mysql/tests/demo_tests/RAG-agent.py`): Shows how to build a RAG agent with retrieval tools and dynamic prompt middleware
+- **Filter Query Demo** (`libs/alibabacloud_mysql/tests/demo_tests/filter-query.py`): Demonstrates metadata filtering capabilities with various operators
+- **Semantic Search Demo** (`libs/alibabacloud_mysql/tests/demo_tests/semantic-search.py`): Basic similarity search examples
+
+To run the demo tests:
+
+1. Copy the example environment file:
+   ```bash
+   cp libs/alibabacloud_mysql/tests/demo_tests/.env.example libs/alibabacloud_mysql/tests/demo_tests/.env
+   ```
+
+2. Edit `.env` and fill in your credentials:
+   ```bash
+   ALIBABACLOUD_MYSQL_HOST=your-rds-host.mysql.rds.aliyuncs.com
+   ALIBABACLOUD_MYSQL_PORT=3306
+   ALIBABACLOUD_MYSQL_USER=your-username
+   ALIBABACLOUD_MYSQL_PASSWORD=your-password
+   ALIBABACLOUD_MYSQL_DATABASE=your-database
+   DASHSCOPE_API_KEY=your-dashscope-api-key
+   ```
+
+3. Run a demo:
+   ```bash
+   cd libs/alibabacloud_mysql/tests/demo_tests
+   python semantic-search.py
+   ```
+
+## Running Tests
+
+### Unit Tests
+
+```bash
+cd libs/alibabacloud_mysql
+make test
+```
+
+### Integration Tests
+
+Integration tests require a real AlibabaCloud RDS MySQL instance. Set up your environment variables and run:
+
+```bash
+cd libs/alibabacloud_mysql
+make integration_tests
+```
+
 ## MySQL Vector Functions Used
 
 This integration uses AlibabaCloud RDS MySQL's native vector functions:
@@ -173,8 +254,8 @@ This integration uses AlibabaCloud RDS MySQL's native vector functions:
 
 ## Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](https://github.com/langchain-ai/langchain-alibabacloud-mysql/blob/main/CONTRIBUTING.md) for guidelines.
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/langchain-ai/langchain-alibabacloud-mysql/blob/main/LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
