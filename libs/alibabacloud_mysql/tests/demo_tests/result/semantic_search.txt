@@ -1,0 +1,283 @@
+✓ Loaded environment variables from: /Users/wyy/langchain-repos/langchain-alibabacloud-mysql/libs/alibabacloud_mysql/tests/demo_tests/.env
+
+======================================================================
+🚀 Semantic Search Demo - AlibabaCloud MySQL Vector Store
+======================================================================
+
+📦 Step 1: Initializing Embeddings
+✓ Embeddings initialized successfully
+
+📦 Step 2: Loading and Splitting Documents
+Loading PDF from: ./data/nke-10k-2023.pdf
+✓ Loaded 107 pages from PDF
+
+First page preview (first 200 chars):
+  Table of Contents
+UNITED STATES
+SECURITIES AND EXCHANGE COMMISSION
+Washington, D.C. 20549
+FORM 10-K
+(Mark One)
+☑  ANNUAL REPORT PURSUANT TO SECTION 13 OR 15(D) OF THE SECURITIES EXCHANGE ACT OF 1934
+F...
+
+First page metadata: {'producer': 'EDGRpdf Service w/ EO.Pdf 22.0.40.0', 'creator': 'EDGAR Filing HTML Converter', 'creationdate': '2023-07-20T16:22:00-04:00', 'title': '0000320187-23-000039', 'author': 'EDGAR Online, a division of Donnelley Financial Solutions', 'subject': 'Form 10-K filed on 2023-07-20 for the period ending 2023-05-31', 'keywords': '0000320187-23-000039; ; 10-K', 'moddate': '2023-07-20T16:22:08-04:00', 'source': './data/nke-10k-2023.pdf', 'total_pages': 107, 'page': 0, 'page_label': '1'}
+
+Splitting documents into chunks...
+  Chunk size: 1000
+  Chunk overlap: 200
+✓ Created 516 text chunks
+
+📦 Step 3: Testing Embedding Generation
+
+======================================================================
+🧪 Test 1: Embedding Generation
+======================================================================
+Generating embeddings for sample documents...
+✓ Generated vectors of length 1024
+  First 10 dimensions of vector 1: [-0.024150226265192032, 0.04402937367558479, 0.03431195393204689, 0.0020280457101762295, 0.034168630838394165, 0.11242396384477615, 0.020266124978661537, 0.0062597100622951984, -0.02442254312336445, 0.0699998289346695]
+
+📦 Step 4: Creating Vector Store
+✓ Vector store created successfully
+
+📦 Step 5: Adding Documents to Vector Store
+
+======================================================================
+🧪 Test 2: Adding Documents to Vector Store
+======================================================================
+Adding 516 documents to vector store...
+  Table name: langchain_vectors_semantic_search
+  Distance strategy: cosine
+✓ Successfully added 516 documents
+  First 3 document IDs: ['c9f0e5f8-5597-4ec5-b572-a25750538e77', '3175b48a-a95e-4253-be4a-2bc6ebb310ea', '64a8c231-7eec-44bd-ac75-110f2c5d9ceb']
+
+📦 Step 6: Running Search Tests
+
+======================================================================
+🧪 Test 3: Similarity Search
+======================================================================
+Query: 'How many distribution centers does Nike have in the US?'
+Returning top 3 results...
+✓ Found 3 results
+
+Result 1:
+  Content: direct to consumer operations sell products through the following number of retail stores in the United States:
+U.S. RETAIL STORES NUMBER
+NIKE Brand factory stores 213 
+NIKE Brand in-line stores (including employee-only stores) 74 
+Converse stores (including factory stores) 82 
+TOTAL 369 
+In the United States, NIKE has eight significant distribution centers. Refer to Item 2. Properties for further...
+  Metadata: {'page': 4, 'title': '0000320187-23-000039', 'author': 'EDGAR Online, a division of Donnelley Financial Solutions', 'source': './data/nke-10k-2023.pdf', 'creator': 'EDGAR Filing HTML Converter', 'moddate': '2023-07-20T16:22:08-04:00', 'subject': 'Form 10-K filed on 2023-07-20 for the period ending 2023-05-31', 'keywords': '0000320187-23-000039; ; 10-K', 'producer': 'EDGRpdf Service w/ EO.Pdf 22.0.40.0', 'page_label': '5', 'start_index': 3125, 'total_pages': 107, 'creationdate': '2023-07-20T16:22:00-04:00'}
+
+Result 2:
+  Content: operations. We also lease an office complex in Shanghai, China, our headquarters for our Greater China geography, occupied by employees focused on implementing our
+wholesale, NIKE Direct and merchandising strategies in the region, among other functions.
+In the United States, NIKE has eight significant distribution centers. Five are located in or near Memphis, Tennessee, two of which are owned and ...
+  Metadata: {'page': 26, 'title': '0000320187-23-000039', 'author': 'EDGAR Online, a division of Donnelley Financial Solutions', 'source': './data/nke-10k-2023.pdf', 'creator': 'EDGAR Filing HTML Converter', 'moddate': '2023-07-20T16:22:08-04:00', 'subject': 'Form 10-K filed on 2023-07-20 for the period ending 2023-05-31', 'keywords': '0000320187-23-000039; ; 10-K', 'producer': 'EDGRpdf Service w/ EO.Pdf 22.0.40.0', 'page_label': '27', 'start_index': 804, 'total_pages': 107, 'creationdate': '2023-07-20T16:22:00-04:00'}
+
+Result 3:
+  Content: some of which are leased and operated by third-party logistics providers. The most significant distribution facilities outside the United States are located in Laakdal,
+Belgium; Taicang, China; Tomisato, Japan and Icheon, Korea, all of which we own.
+Air Manufacturing Innovation manufactures cushioning components used in footwear at NIKE-owned and leased facilities located near Beaverton, Oregon, a...
+  Metadata: {'page': 26, 'title': '0000320187-23-000039', 'author': 'EDGAR Online, a division of Donnelley Financial Solutions', 'source': './data/nke-10k-2023.pdf', 'creator': 'EDGAR Filing HTML Converter', 'moddate': '2023-07-20T16:22:08-04:00', 'subject': 'Form 10-K filed on 2023-07-20 for the period ending 2023-05-31', 'keywords': '0000320187-23-000039; ; 10-K', 'producer': 'EDGRpdf Service w/ EO.Pdf 22.0.40.0', 'page_label': '27', 'start_index': 1559, 'total_pages': 107, 'creationdate': '2023-07-20T16:22:00-04:00'}
+
+
+======================================================================
+🧪 Test 4: Similarity Search with Scores
+======================================================================
+Query: 'What was Nike's revenue in 2023?'
+Returning top 3 results with distance scores...
+Note: Lower scores indicate higher similarity
+
+✓ Found 3 results
+
+Result 1 (Score: 0.6765):
+  Content: Enterprise Resource Planning Platform, data and analytics, demand sensing, insight gathering, and other areas to create an end-to-end technology foundation, which we
+believe will further accelerate our digital transformation. We believe this unified approach will accelerate growth and unlock more efficiency for our business, while driving
+speed and responsiveness as we serve consumers globally.
+FI...
+  Metadata: {'page': 30, 'title': '0000320187-23-000039', 'author': 'EDGAR Online, a division of Donnelley Financial Solutions', 'source': './data/nke-10k-2023.pdf', 'creator': 'EDGAR Filing HTML Converter', 'moddate': '2023-07-20T16:22:08-04:00', 'subject': 'Form 10-K filed on 2023-07-20 for the period ending 2023-05-31', 'keywords': '0000320187-23-000039; ; 10-K', 'producer': 'EDGRpdf Service w/ EO.Pdf 22.0.40.0', 'page_label': '31', 'start_index': 1540, 'total_pages': 107, 'creationdate': '2023-07-20T16:22:00-04:00'}
+
+Result 2 (Score: 0.6696):
+  Content: Table of Contents
+CONSOLIDATED OPERATING RESULTS
+REVENUES
+(Dollars in millions) FISCAL2023 FISCAL2022 % CHANGE
+% CHANGEEXCLUDINGCURRENCYCHANGES FISCAL2021 % CHANGE
+% CHANGEEXCLUDINGCURRENCYCHANGES
+NIKE, Inc. Revenues:
+NIKE Brand Revenues by:
+Footwear $ 33,135 $ 29,143 14 % 20 %$ 28,021 4 % 4 %
+Apparel 13,843 13,567 2 % 8 % 12,865 5 % 6 %
+Equipment 1,727 1,624 6 % 13 % 1,382 18 % 18 %
+Global Brand ...
+  Metadata: {'page': 34, 'title': '0000320187-23-000039', 'author': 'EDGAR Online, a division of Donnelley Financial Solutions', 'source': './data/nke-10k-2023.pdf', 'creator': 'EDGAR Filing HTML Converter', 'moddate': '2023-07-20T16:22:08-04:00', 'subject': 'Form 10-K filed on 2023-07-20 for the period ending 2023-05-31', 'keywords': '0000320187-23-000039; ; 10-K', 'producer': 'EDGRpdf Service w/ EO.Pdf 22.0.40.0', 'page_label': '35', 'start_index': 0, 'total_pages': 107, 'creationdate': '2023-07-20T16:22:00-04:00'}
+
+Result 3 (Score: 0.6692):
+  Content: Table of Contents
+YEAR ENDED MAY 31,
+(Dollars in millions) 2023 2022 2021
+REVENUES
+North America $ 21,608 $ 18,353 $ 17,179 
+Europe, Middle East & Africa 13,418 12,479 11,456 
+Greater China 7,248 7,547 8,290 
+Asia Pacific & Latin America 6,431 5,955 5,343 
+Global Brand Divisions 58 102 25 
+Total NIKE Brand 48,763 44,436 42,293 
+Converse 2,427 2,346 2,205 
+Corporate 27 (72) 40 
+TOTAL NIKE, INC. REV...
+  Metadata: {'page': 88, 'title': '0000320187-23-000039', 'author': 'EDGAR Online, a division of Donnelley Financial Solutions', 'source': './data/nke-10k-2023.pdf', 'creator': 'EDGAR Filing HTML Converter', 'moddate': '2023-07-20T16:22:08-04:00', 'subject': 'Form 10-K filed on 2023-07-20 for the period ending 2023-05-31', 'keywords': '0000320187-23-000039; ; 10-K', 'producer': 'EDGRpdf Service w/ EO.Pdf 22.0.40.0', 'page_label': '89', 'start_index': 0, 'total_pages': 107, 'creationdate': '2023-07-20T16:22:00-04:00'}
+
+
+======================================================================
+🧪 Test 5: Search by Vector
+======================================================================
+Query: 'How were Nike's margins impacted in 2023?'
+Converting query to embedding vector...
+✓ Generated embedding vector of length 1024
+Searching vector store with pre-computed embedding...
+✓ Found 4 results
+
+Result 1:
+  Content: Table of Contents
+GROSS MARGIN
+FISCAL 2023 COMPARED TO FISCAL 2022
+For fiscal 2023, our consolidated gross profit increased 4% to $22,292 million compared to $21,479 million for fiscal 2022. Gross margin decreased 250 basis points to
+43.5% for fiscal 2023 compared to 46.0% for fiscal 2022 due to the following:
+*Wholesale equivalent
+The decrease in gross margin for fiscal 2023 was primarily due to:...
+  Metadata: {'page': 36, 'title': '0000320187-23-000039', 'author': 'EDGAR Online, a division of Donnelley Financial Solutions', 'source': './data/nke-10k-2023.pdf', 'creator': 'EDGAR Filing HTML Converter', 'moddate': '2023-07-20T16:22:08-04:00', 'subject': 'Form 10-K filed on 2023-07-20 for the period ending 2023-05-31', 'keywords': '0000320187-23-000039; ; 10-K', 'producer': 'EDGRpdf Service w/ EO.Pdf 22.0.40.0', 'page_label': '37', 'start_index': 0, 'total_pages': 107, 'creationdate': '2023-07-20T16:22:00-04:00'}
+
+Result 2:
+  Content: Enterprise Resource Planning Platform, data and analytics, demand sensing, insight gathering, and other areas to create an end-to-end technology foundation, which we
+believe will further accelerate our digital transformation. We believe this unified approach will accelerate growth and unlock more efficiency for our business, while driving
+speed and responsiveness as we serve consumers globally.
+FI...
+  Metadata: {'page': 30, 'title': '0000320187-23-000039', 'author': 'EDGAR Online, a division of Donnelley Financial Solutions', 'source': './data/nke-10k-2023.pdf', 'creator': 'EDGAR Filing HTML Converter', 'moddate': '2023-07-20T16:22:08-04:00', 'subject': 'Form 10-K filed on 2023-07-20 for the period ending 2023-05-31', 'keywords': '0000320187-23-000039; ; 10-K', 'producer': 'EDGRpdf Service w/ EO.Pdf 22.0.40.0', 'page_label': '31', 'start_index': 1540, 'total_pages': 107, 'creationdate': '2023-07-20T16:22:00-04:00'}
+
+Result 3:
+  Content: of Income. Total NIKE, Inc. EBIT for fiscal 2023 and fiscal 2022 is as follows:
+YEAR ENDED MAY 31,
+(Dollars in millions) 2023 2022
+Net income $ 5,070 $ 6,046
+Add: Interest expense (income), net (6) 205
+Add: Income tax expense 1,131 605
+Earnings before interest and taxes $ 6,195 $ 6,856
+EBIT Margin: Calculated as total NIKE, Inc. EBIT divided by total NIKE, Inc. Revenues. Our EBIT Margin calculatio...
+  Metadata: {'page': 31, 'title': '0000320187-23-000039', 'author': 'EDGAR Online, a division of Donnelley Financial Solutions', 'source': './data/nke-10k-2023.pdf', 'creator': 'EDGAR Filing HTML Converter', 'moddate': '2023-07-20T16:22:08-04:00', 'subject': 'Form 10-K filed on 2023-07-20 for the period ending 2023-05-31', 'keywords': '0000320187-23-000039; ; 10-K', 'producer': 'EDGRpdf Service w/ EO.Pdf 22.0.40.0', 'page_label': '32', 'start_index': 3132, 'total_pages': 107, 'creationdate': '2023-07-20T16:22:00-04:00'}
+
+Result 4:
+  Content: North America $ 5,454 $ 5,114 7 % $ 5,089 0 %
+Europe, Middle East & Africa 3,531 3,293 7 % 2,435 35 %
+Greater China 2,283 2,365 -3 % 3,243 -27 %
+Asia Pacific & Latin America 1,932 1,896 2 % 1,530 24 %
+Global Brand Divisions (4,841) (4,262) -14 % (3,656) -17 %
+TOTAL NIKE BRAND $ 8,359 $ 8,406 -1 % $ 8,641 -3 %
+Converse 676 669 1 % 543 23 %
+Corporate (2,840) (2,219) -28 % (2,261) 2 %
+TOTAL NIKE, INC...
+  Metadata: {'page': 38, 'title': '0000320187-23-000039', 'author': 'EDGAR Online, a division of Donnelley Financial Solutions', 'source': './data/nke-10k-2023.pdf', 'creator': 'EDGAR Filing HTML Converter', 'moddate': '2023-07-20T16:22:08-04:00', 'subject': 'Form 10-K filed on 2023-07-20 for the period ending 2023-05-31', 'keywords': '0000320187-23-000039; ; 10-K', 'producer': 'EDGRpdf Service w/ EO.Pdf 22.0.40.0', 'page_label': '39', 'start_index': 2350, 'total_pages': 107, 'creationdate': '2023-07-20T16:22:00-04:00'}
+
+
+======================================================================
+🧪 Test 6: Batch Retrieval with Retriever
+======================================================================
+Creating retriever with search_type='similarity', k=1...
+Performing batch retrieval for 2 queries...
+  Queries: ['How many distribution centers does Nike have in the US?', 'When was Nike incorporated?']
+
+✓ Retrieved results for 2 queries
+
+Query 1: 'How many distribution centers does Nike have in the US?'
+  Result: direct to consumer operations sell products through the following number of retail stores in the United States:
+U.S. RETAIL STORES NUMBER
+NIKE Brand factory stores 213 
+NIKE Brand in-line stores (incl...
+  Metadata: {'page': 4, 'title': '0000320187-23-000039', 'author': 'EDGAR Online, a division of Donnelley Financial Solutions', 'source': './data/nke-10k-2023.pdf', 'creator': 'EDGAR Filing HTML Converter', 'moddate': '2023-07-20T16:22:08-04:00', 'subject': 'Form 10-K filed on 2023-07-20 for the period ending 2023-05-31', 'keywords': '0000320187-23-000039; ; 10-K', 'producer': 'EDGRpdf Service w/ EO.Pdf 22.0.40.0', 'page_label': '5', 'start_index': 3125, 'total_pages': 107, 'creationdate': '2023-07-20T16:22:00-04:00'}
+
+Query 2: 'When was Nike incorporated?'
+  Result: Table of Contents
+PART I
+ITEM 1. BUSINESS
+GENERAL
+NIKE, Inc. was incorporated in 1967 under the laws of the State of Oregon. As used in this Annual Report on Form 10-K (this "Annual Report"), the term...
+  Metadata: {'page': 3, 'title': '0000320187-23-000039', 'author': 'EDGAR Online, a division of Donnelley Financial Solutions', 'source': './data/nke-10k-2023.pdf', 'creator': 'EDGAR Filing HTML Converter', 'moddate': '2023-07-20T16:22:08-04:00', 'subject': 'Form 10-K filed on 2023-07-20 for the period ending 2023-05-31', 'keywords': '0000320187-23-000039; ; 10-K', 'producer': 'EDGRpdf Service w/ EO.Pdf 22.0.40.0', 'page_label': '4', 'start_index': 0, 'total_pages': 107, 'creationdate': '2023-07-20T16:22:00-04:00'}
+
+
+📦 Step 7: Testing Async Search Performance
+
+======================================================================
+🧪 Test 7: Async Similarity Search (Non-blocking Verification)
+======================================================================
+Query: 'When was Nike incorporated?'
+Returning top 3 results...
+
+1. Testing single async search...
+✓ Single async search completed in 0.2901 seconds
+  Found 3 results
+
+2. Testing concurrent async searches (verifying non-blocking)...
+   Sequential execution (blocking):
+   ✓ Sequential: 0.9004 seconds
+
+   Concurrent execution (non-blocking):
+   ✓ Concurrent: 0.2899 seconds
+
+3. Verification Results:
+   ✓ Async is truly non-blocking!
+   ✓ Concurrent execution is 3.11x faster than sequential
+   ✓ This confirms async calls don't block each other
+
+4. Results from original query:
+Result 1:
+  Content: Table of Contents
+PART I
+ITEM 1. BUSINESS
+GENERAL
+NIKE, Inc. was incorporated in 1967 under the laws of the State of Oregon. As used in this Annual Report on Form 10-K (this "Annual Report"), the terms "we," "us," "our,"
+"NIKE" and the "Company" refer to NIKE, Inc. and its predecessors, subsidiaries and affiliates, collectively, unless the context indicates otherwise.
+Our principal business activi...
+  Metadata: {'page': 3, 'title': '0000320187-23-000039', 'author': 'EDGAR Online, a division of Donnelley Financial Solutions', 'source': './data/nke-10k-2023.pdf', 'creator': 'EDGAR Filing HTML Converter', 'moddate': '2023-07-20T16:22:08-04:00', 'subject': 'Form 10-K filed on 2023-07-20 for the period ending 2023-05-31', 'keywords': '0000320187-23-000039; ; 10-K', 'producer': 'EDGRpdf Service w/ EO.Pdf 22.0.40.0', 'page_label': '4', 'start_index': 0, 'total_pages': 107, 'creationdate': '2023-07-20T16:22:00-04:00'}
+
+Result 2:
+  Content: Table of Contents
+10.4 Form of Indemnity Agreement entered into between the Company and each of its officers and directors (incorporated by reference to Exhibit 10.2 to theCompany's Annual Report on Form 10-K for the fiscal year ended May 31, 2008).*
+10.5 NIKE, Inc. 1990 Stock Incentive Plan (incorporated by reference to Exhibit 10.7 to the Company's Annual Report on Form 10-K for the fiscal year ...
+  Metadata: {'page': 96, 'title': '0000320187-23-000039', 'author': 'EDGAR Online, a division of Donnelley Financial Solutions', 'source': './data/nke-10k-2023.pdf', 'creator': 'EDGAR Filing HTML Converter', 'moddate': '2023-07-20T16:22:08-04:00', 'subject': 'Form 10-K filed on 2023-07-20 for the period ending 2023-05-31', 'keywords': '0000320187-23-000039; ; 10-K', 'producer': 'EDGRpdf Service w/ EO.Pdf 22.0.40.0', 'page_label': '97', 'start_index': 0, 'total_pages': 107, 'creationdate': '2023-07-20T16:22:00-04:00'}
+
+Result 3:
+  Content: Table of Contents
+NOTE 1 — SUMMARY OF SIGNIFICANT ACCOUNTING POLICIES
+DESCRIPTION OF BUSINESS
+NIKE, Inc. is a worldwide leader in the design, development and worldwide marketing and selling of athletic footwear, apparel, equipment, accessories and services.
+NIKE, Inc. portfolio brands include the NIKE Brand, Jordan Brand and Converse. The NIKE Brand is focused on performance athletic footwear, app...
+  Metadata: {'page': 63, 'title': '0000320187-23-000039', 'author': 'EDGAR Online, a division of Donnelley Financial Solutions', 'source': './data/nke-10k-2023.pdf', 'creator': 'EDGAR Filing HTML Converter', 'moddate': '2023-07-20T16:22:08-04:00', 'subject': 'Form 10-K filed on 2023-07-20 for the period ending 2023-05-31', 'keywords': '0000320187-23-000039; ; 10-K', 'producer': 'EDGRpdf Service w/ EO.Pdf 22.0.40.0', 'page_label': '64', 'start_index': 0, 'total_pages': 107, 'creationdate': '2023-07-20T16:22:00-04:00'}
+
+
+First result from async search:
+  page_content='Table of Contents
+PART I
+ITEM 1. BUSINESS
+GENERAL
+NIKE, Inc. was incorporated in 1967 under the laws of the State of Oregon. As used in this Annual Report on Form 10-K (this "Annual Report"), the terms "we," "us," "our,"
+"NIKE" and the "Company" refer to NIKE, Inc. and its predecessors, subsidiaries and affiliates, collectively, unless the context indicates otherwise.
+Our principal business activity is the design, development and worldwide marketing and selling of athletic footwear, apparel, equipment, accessories and services. NIKE is
+the largest seller of athletic footwear and apparel in the world. We sell our products through NIKE Direct operations, which are comprised of both NIKE-owned retail stores
+and sales through our digital platforms (also referred to as "NIKE Brand Digital"), to retail accounts and to a mix of independent distributors, licensees and sales' metadata={'page': 3, 'title': '0000320187-23-000039', 'author': 'EDGAR Online, a division of Donnelley Financial Solutions', 'source': './data/nke-10k-2023.pdf', 'creator': 'EDGAR Filing HTML Converter', 'moddate': '2023-07-20T16:22:08-04:00', 'subject': 'Form 10-K filed on 2023-07-20 for the period ending 2023-05-31', 'keywords': '0000320187-23-000039; ; 10-K', 'producer': 'EDGRpdf Service w/ EO.Pdf 22.0.40.0', 'page_label': '4', 'start_index': 0, 'total_pages': 107, 'creationdate': '2023-07-20T16:22:00-04:00'}
+
+======================================================================
+✅ All tests completed successfully!
+======================================================================
+
+======================================================================
+🧹 Cleaning Up Vector Store
+======================================================================
+Records in table before cleanup: 516
+Clearing all data from table...
+✓ Successfully cleared 516 records
+Records in table after cleanup: 0
+Closing connection pool...
+✓ Connection pool closed
+

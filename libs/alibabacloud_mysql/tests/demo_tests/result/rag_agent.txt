@@ -1,0 +1,106 @@
+USER_AGENT environment variable not set, consider setting it to identify your requests.
+✓ Loaded environment variables from: /Users/wyy/langchain-repos/langchain-alibabacloud-mysql/libs/alibabacloud_mysql/tests/demo_tests/.env
+
+======================================================================
+🚀 RAG Agent Demo
+======================================================================
+
+📦 Step 1: Initializing Embeddings
+✓ Embeddings initialized successfully
+
+📦 Step 2: Creating Vector Store
+✓ Vector store created successfully
+  Table name: langchain_vectors_rag_agent
+  Distance strategy: cosine
+
+📦 Step 3: Loading Documents
+✓ Loaded document
+  Total characters: 43047
+  Preview: 
+
+      LLM Powered Autonomous Agents
+    
+Date: June 23, 2023  |  Estimated Reading Time: 31 min  |  Author: Lilian Weng
+
+
+Building agents with LLM (large language model) as its core controller is a cool concept. Several proof-of-concepts demos, such as AutoGPT, GPT-Engineer and BabyAGI, serve as inspiring examples. The potentiality of LLM extends beyond generating well-written copies, stories, essays and programs; it can be framed as a powerful general problem solver.
+Agent System Overview#
+In...
+
+📦 Step 4: Splitting Documents
+✓ Split document into 63 sub-documents
+  Chunk size: 1000
+  Chunk overlap: 200
+
+📦 Step 5: Adding Documents to Vector Store
+✓ Successfully added 63 documents
+  First 3 document IDs: ['4b9fe4a3-31a2-4792-b967-19781f8fafb8', '24031ea0-68f1-4dc6-9c07-ade8b13290c7', 'c1f50547-b55f-4c6a-93fc-4c7a06e9e628']
+
+📦 Step 6: Initializing Chat LLM
+✓ Chat LLM initialized successfully
+
+📦 Step 7: Creating Retrieval Tool and Agent
+✓ Retrieval tool and agent created successfully
+
+📦 Step 8: Running RAG Query
+======================================================================
+Query: What is the standard method for Task Decomposition?
+
+Once you get the answer, look up common extensions of that method.
+
+================================ Human Message =================================
+
+What is the standard method for Task Decomposition?
+
+Once you get the answer, look up common extensions of that method.
+================================== Ai Message ==================================
+Tool Calls:
+  retrieve_context (call_dd3bf5f3a63a4988981e26)
+ Call ID: call_dd3bf5f3a63a4988981e26
+  Args:
+    query: standard method for Task Decomposition
+================================= Tool Message =================================
+Name: retrieve_context
+
+Source: {'source': 'https://lilianweng.github.io/posts/2023-06-23-agent/', 'start_index': 1638}
+Content: Component One: Planning#
+A complicated task usually involves many steps. An agent needs to know what they are and plan ahead.
+Task Decomposition#
+Chain of thought (CoT; Wei et al. 2022) has become a standard prompting technique for enhancing model performance on complex tasks. The model is instructed to “think step by step” to utilize more test-time computation to decompose hard tasks into smaller and simpler steps. CoT transforms big tasks into multiple manageable tasks and shed lights into an interpretation of the model’s thinking process.
+Tree of Thoughts (Yao et al. 2023) extends CoT by exploring multiple reasoning possibilities at each step. It first decomposes the problem into multiple thought steps and generates multiple thoughts per step, creating a tree structure. The search process can be BFS (breadth-first search) or DFS (depth-first search) with each state evaluated by a classifier (via a prompt) or majority vote.
+
+Source: {'source': 'https://lilianweng.github.io/posts/2023-06-23-agent/', 'start_index': 1638}
+Content: Component One: Planning#
+A complicated task usually involves many steps. An agent needs to know what they are and plan ahead.
+Task Decomposition#
+Chain of thought (CoT; Wei et al. 2022) has become a standard prompting technique for enhancing model performance on complex tasks. The model is instructed to “think step by step” to utilize more test-time computation to decompose hard tasks into smaller and simpler steps. CoT transforms big tasks into multiple manageable tasks and shed lights into an interpretation of the model’s thinking process.
+Tree of Thoughts (Yao et al. 2023) extends CoT by exploring multiple reasoning possibilities at each step. It first decomposes the problem into multiple thought steps and generates multiple thoughts per step, creating a tree structure. The search process can be BFS (breadth-first search) or DFS (depth-first search) with each state evaluated by a classifier (via a prompt) or majority vote.
+================================== Ai Message ==================================
+
+The standard method for Task Decomposition is the **Chain of Thought (CoT)** approach. This technique involves breaking down complex tasks into smaller, manageable steps by instructing the model to "think step by step." CoT helps enhance model performance on complex tasks by utilizing more test-time computation and providing an interpretable view of the model's reasoning process.
+
+### Common Extensions of Chain of Thought (CoT):
+1. **Tree of Thoughts (ToT)**: This extends CoT by exploring multiple reasoning possibilities at each step. Instead of a linear chain, it creates a tree structure where multiple thoughts are generated per step. The search process can be either Breadth-First Search (BFS) or Depth-First Search (DFS), with each state evaluated using a classifier or majority vote.
+
+These extensions aim to improve the robustness and flexibility of task decomposition by considering alternative paths and outcomes during the reasoning process.
+
+📦 Step 9: Creating Agent with Dynamic Prompt Middleware
+✓ Agent with dynamic prompt middleware created successfully
+
+📦 Step 10: Running RAG Query with Dynamic Prompt
+======================================================================
+Query: What is task decomposition?
+
+================================ Human Message =================================
+
+What is task decomposition?
+================================== Ai Message ==================================
+
+Task decomposition is the process of breaking down a complex or large task into smaller, more manageable subtasks. This approach allows for better organization, understanding, and execution of the overall task. In the context of artificial intelligence and machine learning, task decomposition is often used to improve model performance on complex problems by enabling the model to "think step by step." Techniques like Chain of Thought (CoT) and Tree of Thoughts (ToT) utilize task decomposition to enhance reasoning and problem-solving capabilities.
+
+======================================================================
+✅ RAG Agent setup and query completed successfully!
+======================================================================
+
+🧹 Cleaning up...
+✓ Connection pool closed

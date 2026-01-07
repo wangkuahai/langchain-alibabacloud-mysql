@@ -1,0 +1,355 @@
+✓ Loaded environment variables from: /Users/wyy/langchain-repos/langchain-alibabacloud-mysql/libs/alibabacloud_mysql/tests/demo_tests/.env
+
+======================================================================
+🚀 Filter Query Demo - AlibabaCloud MySQL Vector Store
+======================================================================
+
+📦 Step 1: Initializing Embeddings
+✓ Embeddings initialized successfully
+
+📦 Step 2: Creating Vector Store
+✓ Vector store created successfully
+  Table name: langchain_vectors_filter_query
+  Distance strategy: cosine
+
+📦 Step 3: Loading and Preparing Documents
+Loading document from: ./data/paul_graham_essay.txt
+✓ Loaded document (75014 characters)
+  Preview: 
+
+What I Worked On
+
+February 2021
+
+Before college the two main things I worked on, outside of school, were writing and programming. I didn't write essays. I wrote what beginning writers were supposed ...
+✓ Split into 177 paragraphs
+✓ Created 171 documents
+  Footnotes: 19
+  Regular paragraphs: 152
+
+📦 Step 4: Adding Documents to Vector Store
+✓ Successfully added 171 documents
+  First 3 document IDs: ['41927cef-eb3f-4e7b-bc57-6fd931146fd6', '9d2ca5ca-8a1b-43b5-96aa-0b738d95ee98', '4025614f-2ec8-43e5-8ca1-f2a3cde88c82']
+
+📦 Step 5: Running Filter Query Tests
+
+======================================================================
+🧪 Test 1: Simple Similarity Search (No Filter)
+======================================================================
+Query: 'programming and computers'
+Returning top 5 results...
+
+✓ Found 5 results
+
+Result 1:
+  Content: Computer Science is an uneasy alliance between two halves, theory and systems. The theory people prove things, and the systems people build things. I wanted to build things. I had plenty of respect fo...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': False, 'paragraph_id': 20}
+
+Result 2:
+  Content: [1] My experience skipped a step in the evolution of computers: time-sharing machines with interactive OSes. I went straight from batch processing to microcomputers, which made microcomputers seem all...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': True, 'paragraph_id': 152}
+
+Result 3:
+  Content: The language we used was an early version of Fortran. You had to type programs on punch cards, then stack them in the card reader and press a button to load the program into memory and run it. The res...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': False, 'paragraph_id': 5}
+
+Result 4:
+  Content: With microcomputers, everything changed. Now you could have a computer sitting right in front of you, on a desk, that could respond to your keystrokes as it was running instead of just churning throug...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': False, 'paragraph_id': 7}
+
+Result 5:
+  Content: I was puzzled by the 1401. I couldn't figure out what to do with it. And in retrospect there's not much I could have done with it. The only form of input to programs was data stored on punched cards, ...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': False, 'paragraph_id': 6}
+
+
+======================================================================
+🧪 Test 2: Similarity Search with Metadata Filter (Equality)
+======================================================================
+Query: 'programming and computers'
+Filter: {'is_footnote': True}
+Returning top 5 results...
+
+✓ Found 5 results
+
+Result 1:
+  Content: [1] My experience skipped a step in the evolution of computers: time-sharing machines with interactive OSes. I went straight from batch processing to microcomputers, which made microcomputers seem all...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': True, 'paragraph_id': 152}
+
+Result 2:
+  Content: [10] This was the first instance of what is now a familiar experience, and so was what happened next, when I read the comments and found they were full of angry people. How could I claim that Lisp was...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': True, 'paragraph_id': 161}
+
+Result 3:
+  Content: [5] Interleaf was one of many companies that had smart people and built impressive technology, and yet got crushed by Moore's Law. In the 1990s the exponential growth in the power of commodity (i.e. I...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': True, 'paragraph_id': 156}
+
+Result 4:
+  Content: [19] One way to get more precise about the concept of invented vs discovered is to talk about space aliens. Any sufficiently advanced alien civilization would certainly know about the Pythagorean theo...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': True, 'paragraph_id': 173}
+
+Result 5:
+  Content: [9] We'd had a code editor in Viaweb for users to define their own page styles. They didn't know it, but they were editing Lisp expressions underneath. But this wasn't an app editor, because the code ...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': True, 'paragraph_id': 160}
+
+
+======================================================================
+🧪 Test 3: Similarity Search with Metadata Filter Operators
+======================================================================
+
+3.1. Testing $gt operator (paragraph_id > 10):
+Query: 'programming and computers'
+✓ Found 5 results
+  - Paragraph ID: 20
+  - Paragraph ID: 152
+  - Paragraph ID: 21
+  - Paragraph ID: 13
+  - Paragraph ID: 137
+
+3.2. Testing $lt operator (paragraph_id < 5):
+Query: 'programming and computers'
+✓ Found 3 results
+  - Paragraph ID: 4
+  - Paragraph ID: 3
+  - Paragraph ID: 1
+
+3.3. Testing range filter ($gte and $lte):
+Query: 'programming and computers'
+✓ Found 5 results
+  - Paragraph ID: 5
+  - Paragraph ID: 7
+  - Paragraph ID: 6
+  - Paragraph ID: 9
+  - Paragraph ID: 8
+
+======================================================================
+🧪 Test 4: Metadata-Only Search (No Vector Similarity)
+======================================================================
+Searching for all footnotes (is_footnote = True)...
+
+✓ Found 10 footnotes
+
+Footnote 1:
+  Content: [14] YC did become a fund for a couple years starting in 2009, because it was getting so big I could no longer afford to fund it personally. But after Heroku got bought we had enough money to go back ...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': True, 'paragraph_id': 168}
+
+Footnote 2:
+  Content: [6] The signature style seekers at RISD weren't specifically mercenary. In the art world, money and coolness are tightly coupled. Anything expensive comes to be seen as cool, and anything seen as cool...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': True, 'paragraph_id': 157}
+
+Footnote 3:
+  Content: [19] One way to get more precise about the concept of invented vs discovered is to talk about space aliens. Any sufficiently advanced alien civilization would certainly know about the Pythagorean theo...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': True, 'paragraph_id': 173}
+
+Footnote 4:
+  Content: [10] This was the first instance of what is now a familiar experience, and so was what happened next, when I read the comments and found they were full of angry people. How could I claim that Lisp was...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': True, 'paragraph_id': 161}
+
+Footnote 5:
+  Content: [2] Italian words for abstract concepts can nearly always be predicted from their English cognates (except for occasional traps like polluzione). It's the everyday words that differ. So if you string ...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': True, 'paragraph_id': 153}
+
+Footnote 6:
+  Content: [13] Y Combinator was not the original name. At first we were called Cambridge Seed. But we didn't want a regional name, in case someone copied us in Silicon Valley, so we renamed ourselves after one ...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': True, 'paragraph_id': 166}
+
+Footnote 7:
+  Content: [8] Most software you can launch as soon as it's done. But when the software is an online store builder and you're hosting the stores, if you don't have any users yet, that fact will be painfully obvi...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': True, 'paragraph_id': 159}
+
+Footnote 8:
+  Content: [16] She reports that they were all different shapes and sizes, because there was a run on air conditioners and she had to get whatever she could, but that they were all heavier than she could carry n...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': True, 'paragraph_id': 170}
+
+Footnote 9:
+  Content: [9] We'd had a code editor in Viaweb for users to define their own page styles. They didn't know it, but they were editing Lisp expressions underneath. But this wasn't an app editor, because the code ...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': True, 'paragraph_id': 160}
+
+Footnote 10:
+  Content: [7] Technically the apartment wasn't rent-controlled but rent-stabilized, but this is a refinement only New Yorkers would know or care about. The point is that it was really cheap, less than half mark...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': True, 'paragraph_id': 158}
+
+
+======================================================================
+🧪 Test 5: Combined Metadata Filters
+======================================================================
+Query: 'programming and computers'
+Filter: {'is_footnote': False, 'paragraph_id': {'$gt': 5}}
+(Regular paragraphs with paragraph_id > 5)
+
+✓ Found 5 results
+
+Result 1:
+  Content: Computer Science is an uneasy alliance between two halves, theory and systems. The theory people prove things, and the systems people build things. I wanted to build things. I had plenty of respect fo...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': False, 'paragraph_id': 20}
+
+Result 2:
+  Content: With microcomputers, everything changed. Now you could have a computer sitting right in front of you, on a desk, that could respond to your keystrokes as it was running instead of just churning throug...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': False, 'paragraph_id': 7}
+
+Result 3:
+  Content: I was puzzled by the 1401. I couldn't figure out what to do with it. And in retrospect there's not much I could have done with it. The only form of input to programs was data stored on punched cards, ...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': False, 'paragraph_id': 6}
+
+Result 4:
+  Content: The problem with systems work, though, was that it didn't last. Any program you wrote today, no matter how good, would be obsolete in a couple decades at best. People might mention your software in fo...
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': False, 'paragraph_id': 21}
+
+Result 5:
+  Content: There weren't any classes in AI at Cornell then, not even graduate classes, so I started trying to teach myself. Which meant learning Lisp, since in those days Lisp was regarded as the language of AI....
+  Metadata: {'source': './data/paul_graham_essay.txt', 'is_footnote': False, 'paragraph_id': 13}
+
+
+📦 Step 6: Creating Agent with Filter Support
+✓ Chat LLM initialized successfully
+✓ Agent with filter support created successfully
+
+📦 Step 7: Testing Agent with Filter Queries
+======================================================================
+
+7.1. Testing agent query without filter:
+Query: What did the author say about programming?
+
+================================ Human Message =================================
+
+What did the author say about programming?
+================================== Ai Message ==================================
+Tool Calls:
+  retrieve_with_filter (call_4c7b687b3e1646519dbef0)
+ Call ID: call_4c7b687b3e1646519dbef0
+  Args:
+    query: programming
+    is_footnote: False
+================================= Tool Message =================================
+Name: retrieve_with_filter
+
+Source: {'source': './data/paul_graham_essay.txt', 'is_footnote': False, 'paragraph_id': 151}
+Content: Notes
+
+Source: {'source': './data/paul_graham_essay.txt', 'is_footnote': False, 'paragraph_id': 6}
+Content: I was puzzled by the 1401. I couldn't figure out what to do with it. And in retrospect there's not much I could have done with it. The only form of input to programs was data stored on punched cards, and I didn't have any data stored on punched cards. The only other option was to do things that didn't rely on any input, like calculate approximations of pi, but I didn't know enough math to do anything interesting of that type. So I'm not surprised I can't remember any programs I wrote, because they can't have done much. My clearest memory is of the moment I learned it was possible for programs not to terminate, when one of mine didn't. On a machine without time-sharing, this was a social as well as a technical error, as the data center manager's expression made clear.
+
+Source: {'source': './data/paul_graham_essay.txt', 'is_footnote': False, 'paragraph_id': 13}
+Content: There weren't any classes in AI at Cornell then, not even graduate classes, so I started trying to teach myself. Which meant learning Lisp, since in those days Lisp was regarded as the language of AI. The commonly used programming languages then were pretty primitive, and programmers' ideas correspondingly so. The default language at Cornell was a Pascal-like language called PL/I, and the situation was similar elsewhere. Learning Lisp expanded my concept of a program so fast that it was years before I started to have a sense of where the new limits were. This was more like it; this was what I had expected college to do. It wasn't happening in a class, like it was supposed to, but that was ok. For the next couple years I was on a roll. I knew what I was going to do.
+================================== Ai Message ==================================
+
+The author reflects on his early experiences with programming, particularly during his time at Cornell. He mentions that there were no formal AI classes, so he taught himself by learning Lisp, which was considered the language of AI at the time. He notes that the commonly used programming languages of that era were primitive, and programmers' ideas were similarly limited. Learning Lisp expanded his understanding of what a program could be, and he felt it was more aligned with what he expected from his college experience. He also recalls his initial struggles with programming, such as not knowing what to do with a machine like the 1401, and his first realization that programs could fail to terminate.
+
+7.2. Testing agent query with footnote filter:
+Query: What did the author say about programming? Only from footnotes.
+
+================================ Human Message =================================
+
+What did the author say about programming? Only from footnotes.
+================================== Ai Message ==================================
+Tool Calls:
+  retrieve_with_filter (call_7e9482a4f1aa4100956749)
+ Call ID: call_7e9482a4f1aa4100956749
+  Args:
+    query: programming
+    is_footnote: True
+================================= Tool Message =================================
+Name: retrieve_with_filter
+
+Source: {'source': './data/paul_graham_essay.txt', 'is_footnote': True, 'paragraph_id': 152}
+Content: [1] My experience skipped a step in the evolution of computers: time-sharing machines with interactive OSes. I went straight from batch processing to microcomputers, which made microcomputers seem all the more exciting.
+
+Source: {'source': './data/paul_graham_essay.txt', 'is_footnote': True, 'paragraph_id': 160}
+Content: [9] We'd had a code editor in Viaweb for users to define their own page styles. They didn't know it, but they were editing Lisp expressions underneath. But this wasn't an app editor, because the code ran when the merchants' sites were generated, not when shoppers visited them.
+
+Source: {'source': './data/paul_graham_essay.txt', 'is_footnote': True, 'paragraph_id': 161}
+Content: [10] This was the first instance of what is now a familiar experience, and so was what happened next, when I read the comments and found they were full of angry people. How could I claim that Lisp was better than other languages? Weren't they all Turing complete? People who see the responses to essays I write sometimes tell me how sorry they feel for me, but I'm not exaggerating when I reply that it has always been like this, since the very beginning. It comes with the territory. An essay must tell readers things they don't already know, and some people dislike being told such things.
+================================== Ai Message ==================================
+
+The author mentions several points about programming in the provided footnotes:
+
+1. The author reflects on their experience with computers, skipping a step in their evolution by moving directly from batch processing to microcomputers, which made microcomputers seem more exciting.
+   
+2. In the context of Viaweb, the author describes how users were editing Lisp expressions without realizing it, highlighting the integration of programming within user-facing tools.
+
+3. The author discusses the challenges of writing essays about programming, noting that such writings often provoke strong reactions. They mention that people often question the superiority of one programming language over another, despite all being Turing complete. This indicates that the author acknowledges the contentious nature of discussing programming languages and the resistance some readers may have to new ideas.
+
+These insights reveal the author's perspective on both the technical and social aspects of programming.
+
+7.3. Testing agent query with paragraph ID range filter:
+Query: What did the author say about programming? (first 10 paragraphs)?
+
+================================ Human Message =================================
+
+What did the author say about programming? (first 10 paragraphs)?
+================================== Ai Message ==================================
+Tool Calls:
+  retrieve_with_filter (call_e0fd12e5483b4fe0a21a50)
+ Call ID: call_e0fd12e5483b4fe0a21a50
+  Args:
+    query: programming
+    paragraph_id_min: 1
+    paragraph_id_max: 10
+================================= Tool Message =================================
+Name: retrieve_with_filter
+
+Source: {'source': './data/paul_graham_essay.txt', 'is_footnote': False, 'paragraph_id': 6}
+Content: I was puzzled by the 1401. I couldn't figure out what to do with it. And in retrospect there's not much I could have done with it. The only form of input to programs was data stored on punched cards, and I didn't have any data stored on punched cards. The only other option was to do things that didn't rely on any input, like calculate approximations of pi, but I didn't know enough math to do anything interesting of that type. So I'm not surprised I can't remember any programs I wrote, because they can't have done much. My clearest memory is of the moment I learned it was possible for programs not to terminate, when one of mine didn't. On a machine without time-sharing, this was a social as well as a technical error, as the data center manager's expression made clear.
+
+Source: {'source': './data/paul_graham_essay.txt', 'is_footnote': False, 'paragraph_id': 5}
+Content: The language we used was an early version of Fortran. You had to type programs on punch cards, then stack them in the card reader and press a button to load the program into memory and run it. The result would ordinarily be to print something on the spectacularly loud printer.
+
+Source: {'source': './data/paul_graham_essay.txt', 'is_footnote': False, 'paragraph_id': 4}
+Content: The first programs I tried writing were on the IBM 1401 that our school district used for what was then called "data processing." This was in 9th grade, so I was 13 or 14. The school district's 1401 happened to be in the basement of our junior high school, and my friend Rich Draves and I got permission to use it. It was like a mini Bond villain's lair down there, with all these alien-looking machines — CPU, disk drives, printer, card reader — sitting up on a raised floor under bright fluorescent lights.
+================================== Ai Message ==================================
+
+The author reflects on his early experiences with programming, particularly using the IBM 1401 in ninth grade. He mentions that the language used was an early version of Fortran, and he had to type programs on punch cards, which were then loaded into memory and run. The process involved stacking the cards in a card reader and pressing a button to start the program. The results would typically print something on a loud printer.
+
+He also recalls being puzzled by the 1401, as he didn't know what to do with it. The only forms of input were data stored on punched cards, which he didn't have, or tasks that didn't rely on input, like calculating approximations of pi, which he found too mathematically challenging. His clearest memory is of the moment he learned that programs could fail to terminate, which was both a technical and social error on a machine without time-sharing.
+
+Overall, his experience with programming at the time was limited and somewhat frustrating, but it marked the beginning of his journey into computing.
+
+7.4. Testing agent query with combined filters:
+Query: Find information about Lisp, but exclude footnotes and only search in paragraphs 5-20.
+
+================================ Human Message =================================
+
+Find information about Lisp, but exclude footnotes and only search in paragraphs 5-20.
+================================== Ai Message ==================================
+Tool Calls:
+  retrieve_with_filter (call_dbc646a32369495b8a9e68)
+ Call ID: call_dbc646a32369495b8a9e68
+  Args:
+    query: Lisp
+    is_footnote: False
+    paragraph_id_min: 5
+    paragraph_id_max: 20
+================================= Tool Message =================================
+Name: retrieve_with_filter
+
+Source: {'source': './data/paul_graham_essay.txt', 'is_footnote': False, 'paragraph_id': 19}
+Content: So I looked around to see what I could salvage from the wreckage of my plans, and there was Lisp. I knew from experience that Lisp was interesting for its own sake and not just for its association with AI, even though that was the main reason people cared about it at the time. So I decided to focus on Lisp. In fact, I decided to write a book about Lisp hacking. It's scary to think how little I knew about Lisp hacking when I started writing that book. But there's nothing like writing a book about something to help you learn it. The book, On Lisp, wasn't published till 1993, but I wrote much of it in grad school.
+
+Source: {'source': './data/paul_graham_essay.txt', 'is_footnote': False, 'paragraph_id': 13}
+Content: There weren't any classes in AI at Cornell then, not even graduate classes, so I started trying to teach myself. Which meant learning Lisp, since in those days Lisp was regarded as the language of AI. The commonly used programming languages then were pretty primitive, and programmers' ideas correspondingly so. The default language at Cornell was a Pascal-like language called PL/I, and the situation was similar elsewhere. Learning Lisp expanded my concept of a program so fast that it was years before I started to have a sense of where the new limits were. This was more like it; this was what I had expected college to do. It wasn't happening in a class, like it was supposed to, but that was ok. For the next couple years I was on a roll. I knew what I was going to do.
+
+Source: {'source': './data/paul_graham_essay.txt', 'is_footnote': False, 'paragraph_id': 14}
+Content: For my undergraduate thesis, I reverse-engineered SHRDLU. My God did I love working on that program. It was a pleasing bit of code, but what made it even more exciting was my belief — hard to imagine now, but not unique in 1985 — that it was already climbing the lower slopes of intelligence.
+================================== Ai Message ==================================
+
+Here is the information about Lisp found in paragraphs 5-20, excluding footnotes:
+
+1. **Paragraph 13**:  
+   - Content: "There weren't any classes in AI at Cornell then, not even graduate classes, so I started trying to teach myself. Which meant learning Lisp, since in those days Lisp was regarded as the language of AI. The commonly used programming languages then were pretty primitive, and programmers' ideas correspondingly so. The default language at Cornell was a Pascal-like language called PL/I, and the situation was similar elsewhere. Learning Lisp expanded my concept of a program so fast that it was years before I started to have a sense of where the new limits were. This was more like it; this was what I had expected college to do. It wasn't happening in a class, like it was supposed to, but that was ok. For the next couple years I was on a roll. I knew what I was going to do."  
+   - Summary: The paragraph discusses how Lisp was considered the language of AI during that time and how learning it helped expand the author's understanding of programming.
+
+2. **Paragraph 14**:  
+   - Content: "For my undergraduate thesis, I reverse-engineered SHRDLU. My God did I love working on that program. It was a pleasing bit of code, but what made it even more exciting was my belief — hard to imagine now, but not unique in 1985 — that it was already climbing the lower slopes of intelligence."  
+   - Summary: The author worked on reverse-engineering a program called SHRDLU and believed it showed signs of intelligence, which was an exciting experience.
+
+3. **Paragraph 19**:  
+   - Content: "So I looked around to see what I could salvage from the wreckage of my plans, and there was Lisp. I knew from experience that Lisp was interesting for its own sake and not just for its association with AI, even though that was the main reason people cared about it at the time. So I decided to focus on Lisp. In fact, I decided to write a book about Lisp hacking. It's scary to think how little I knew about Lisp hacking when I started writing that book. But there's nothing like writing a book about something to help you learn it. The book, On Lisp, wasn't published till 1993, but I wrote much of it in grad school."  
+   - Summary: The author discovered Lisp after setbacks and decided to focus on it, eventually writing a book called *On Lisp*.
+
+Let me know if you'd like further details!
+
+======================================================================
+✅ All filter query tests completed successfully!
+======================================================================
+
+🧹 Cleaning up...
+✓ Connection pool closed
