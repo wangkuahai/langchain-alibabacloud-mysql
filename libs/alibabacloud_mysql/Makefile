@@ -1,4 +1,4 @@
-.PHONY: all format lint test tests integration_tests docker_tests help extended_tests
+.PHONY: all format lint test tests integration_tests docker_tests help extended_tests type_check type_check_package type_check_tests
 
 # Default target executed when no arguments are given to make.
 all: help
@@ -49,6 +49,20 @@ check_imports: $(shell find langchain_alibabacloud_mysql -name '*.py')
 	uv run --all-groups python ./scripts/check_imports.py $^
 
 ######################
+# TYPE CHECKING
+######################
+
+# Define a variable for Python files to type check.
+TYPE_CHECK_FILES=.
+TYPE_CHECK_CACHE=.mypy_cache
+type_check_package: TYPE_CHECK_FILES=langchain_alibabacloud_mysql
+type_check_tests: TYPE_CHECK_FILES=tests
+type_check_tests: TYPE_CHECK_CACHE=.mypy_cache_test
+
+type_check type_check_package type_check_tests:
+	[ "$(TYPE_CHECK_FILES)" = "" ] || mkdir -p $(TYPE_CHECK_CACHE) && uv run --all-groups mypy $(TYPE_CHECK_FILES) --cache-dir $(TYPE_CHECK_CACHE)
+
+######################
 # HELP
 ######################
 
@@ -57,6 +71,9 @@ help:
 	@echo 'check_imports				- check imports'
 	@echo 'format                       - run code formatters'
 	@echo 'lint                         - run linters'
+	@echo 'type_check                   - run type checker (mypy)'
+	@echo 'type_check_package           - run type checker on package only'
+	@echo 'type_check_tests             - run type checker on tests only'
 	@echo 'test                         - run unit tests'
 	@echo 'tests                        - run unit tests'
 	@echo 'test TEST_FILE=<test_file>   - run all tests in file'

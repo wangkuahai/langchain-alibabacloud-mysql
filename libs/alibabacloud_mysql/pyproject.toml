@@ -32,9 +32,6 @@ disallow_untyped_defs = "True"
 module = ["mysql.connector", "mysql.connector.pooling"]
 ignore_missing_imports = "True"
 [[tool.mypy.overrides]]
-module = ["aiomysql"]
-ignore_missing_imports = "True"
-[[tool.mypy.overrides]]
 module = ["tests.*"]
 ignore_errors = "True"
 

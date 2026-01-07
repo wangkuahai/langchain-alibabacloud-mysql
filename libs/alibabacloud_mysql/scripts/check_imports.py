@@ -15,4 +15,3 @@ if __name__ == "__main__":
             print()  # noqa: T201
 
     sys.exit(1 if has_failure else 0)
-
