@@ -9,16 +9,16 @@ description = "An integration package connecting AlibabaCloud RDS MySQL (with Ve
 authors = []
 readme = "README.md"
 license = {text = "MIT"}
-requires-python = ">=3.10,<4.0"
+requires-python = ">=3.10.0,<4.0.0"
 dependencies = [
     "langchain-core>=1.0.0",
     "mysql-connector-python>=8.0.0",
 ]
 
 [project.urls]
-"Source Code" = "https://github.com/langchain-ai/langchain-alibabacloud-mysql/tree/main/libs/alibabacloud_mysql"
-"Release Notes" = "https://github.com/langchain-ai/langchain-alibabacloud-mysql/releases"
-Repository = "https://github.com/langchain-ai/langchain-alibabacloud-mysql"
+"Source Code" = "https://github.com/wangkuahai/langchain-alibabacloud-mysql/tree/main/libs/alibabacloud_mysql"
+"Release Notes" = "https://github.com/wangkuahai/langchain-alibabacloud-mysql/releases"
+Repository = "https://github.com/wangkuahai/langchain-alibabacloud-mysql"
 
 [tool.ruff]
 select = ["E", "F", "I", "T201"]
@@ -42,48 +42,38 @@ markers = [
 ]
 asyncio_mode = "auto"
 
-[tool.poetry.group.test]
-optional = true
+[dependency-groups]
+test = [
+    "pytest>=7.3.0",
+    "freezegun>=1.2.2",
+    "pytest-mock>=3.10.0",
+    "syrupy>=4.0.2",
+    "pytest-watcher>=0.3.4",
+    "pytest-asyncio>=0.21.1",
+    "numpy>=1.24.0",
+    "langchain-core",
+]
+codespell = [
+    "codespell>=2.2.0",
+]
+test_integration = [
+    "numpy>=1.24.0",
+    "python-dotenv>=1.0.0",
+    "dashscope>=1.14.0",
+    "langchain-community>=0.2.0",
+]
+lint = [
+    "ruff>=0.1.5",
+]
+typing = [
+    "mypy>=1.11",
+    "types-requests>=2",
+    "langchain-core",
+]
+dev = [
+    "langchain-core",
+    "numpy>=1.24.0",
+]
 
-[tool.poetry.group.codespell]
-optional = true
-
-[tool.poetry.group.test_integration]
-optional = true
-
-[tool.poetry.group.lint]
-optional = true
-
-[tool.poetry.group.dev]
-optional = true
-
-[tool.poetry.group.test.dependencies]
-pytest = "^7.3.0"
-freezegun = "^1.2.2"
-pytest-mock = "^3.10.0"
-syrupy = "^4.0.2"
-pytest-watcher = "^0.3.4"
-pytest-asyncio = "^0.21.1"
-numpy = "^1.24.0"
+[tool.uv.sources]
 langchain-core = { git = "https://github.com/langchain-ai/langchain.git", subdirectory = "libs/core" }
-
-[tool.poetry.group.codespell.dependencies]
-codespell = "^2.2.0"
-
-[tool.poetry.group.test_integration.dependencies]
-numpy = "^1.24.0"
-python-dotenv = "^1.0.0"
-dashscope = "^1.14.0"
-langchain-community = ">=0.2.0"
-
-[tool.poetry.group.lint.dependencies]
-ruff = "^0.1.5"
-
-[tool.poetry.group.typing.dependencies]
-mypy = "^1.11"
-types-requests = "^2"
-langchain-core = { git = "https://github.com/langchain-ai/langchain.git", subdirectory = "libs/core" }
-
-[tool.poetry.group.dev.dependencies]
-langchain-core = { git = "https://github.com/langchain-ai/langchain.git", subdirectory = "libs/core" }
-numpy = "^1.24.0"
