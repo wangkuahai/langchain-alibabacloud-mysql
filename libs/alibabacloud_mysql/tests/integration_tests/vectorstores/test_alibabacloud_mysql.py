@@ -280,7 +280,7 @@ def test_vector_support() -> None:
 
             # Test insert
             cursor.execute(f"""
-                INSERT INTO {test_table} (id, embedding) 
+                INSERT INTO {test_table} (id, embedding)
                 VALUES (1, VEC_FromText('[1.0, 2.0, 3.0]'))
             """)
             _log("   ✅ Vector insert works")
@@ -973,6 +973,50 @@ def test_mmr_with_filter(vectorstore: "AlibabaCloudMySQL") -> None:
         "苹果产品",
         k=2,
         fetch_k=5,
+        filter={"brand": "apple"},
+    )
+
+    _log("MMR with filter results (brand='apple'):", newline_before=True)
+    for doc in results:
+        _log(f"  - {doc.page_content}: brand={doc.metadata.get('brand')}")
+
+    assert len(results) == 2
+    for doc in results:
+        assert doc.metadata.get("brand") == "apple"
+
+
+@pytest.mark.integration
+def test_mmr_with_filter_2(vectorstore: "AlibabaCloudMySQL") -> None:
+    """Test MMR search with metadata filter."""
+    texts = [
+        "苹果公司是一家科技公司",
+        "苹果公司是一家科技公司",
+        "苹果公司是一家科技公司",
+        "苹果公司是一家科技公司",
+        "苹果公司是一家科技公司",
+        "苹果手机非常流行",
+        "苹果电脑性能强劲",
+        "三星手机也很受欢迎",
+        "华为手机国产品牌",
+    ]
+    metadatas = [
+        {"brand": "apple", "type": "company"},
+        {"brand": "apple", "type": "company"},
+        {"brand": "apple", "type": "company"},
+        {"brand": "apple", "type": "company"},
+        {"brand": "apple", "type": "company"},
+        {"brand": "apple", "type": "phone"},
+        {"brand": "apple", "type": "computer"},
+        {"brand": "samsung", "type": "phone"},
+        {"brand": "huawei", "type": "phone"},
+    ]
+    vectorstore.add_texts(texts, metadatas=metadatas)
+
+    # MMR search with filter for apple brand only
+    results = vectorstore.max_marginal_relevance_search(
+        "苹果公司",
+        k=2,
+        fetch_k=9,
         filter={"brand": "apple"},
     )
 

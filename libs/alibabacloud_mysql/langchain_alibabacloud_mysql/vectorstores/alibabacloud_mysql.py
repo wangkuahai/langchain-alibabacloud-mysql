@@ -303,7 +303,18 @@ class AlibabaCloudMySQL(VectorStore):
 
     def __del__(self) -> None:
         """Destructor to clean up resources."""
-        self.close()
+        # Only close sync connections in __del__
+        # Async connections should be closed via aclose() before event loop closes
+        # Closing async connections here can cause "Event loop is closed" errors
+        try:
+            self.close()
+            # Clear async pool reference to prevent __del__ from trying to close it
+            # after event loop is closed
+            if hasattr(self, "_async_pool"):
+                self._async_pool = None
+        except Exception:
+            # Ignore errors during cleanup in __del__
+            pass
 
     def _get_connection_with_retry(self) -> "PooledMySQLConnection":
         """Get a database connection with retry logic.
@@ -1391,27 +1402,37 @@ class AlibabaCloudMySQL(VectorStore):
 
         results: List[Tuple[Document, float]] = []
 
-        with self._get_cursor() as cursor:
-            cursor.execute(sql, query_params)
+        try:
+            with self._get_cursor() as cursor:
+                cursor.execute(sql, query_params)
 
-            for record in cursor:
-                distance = float(record["distance"])
-                similarity = self._distance_to_similarity(distance)
+                for record in cursor:
+                    distance = float(record["distance"])
+                    similarity = self._distance_to_similarity(distance)
 
-                # Apply score threshold
-                if score_threshold is not None and similarity < score_threshold:
-                    continue
+                    # Apply score threshold
+                    if score_threshold is not None and similarity < score_threshold:
+                        continue
 
-                metadata = record["metadata"]
-                if isinstance(metadata, str):
-                    metadata = json.loads(metadata)
+                    metadata = record["metadata"]
+                    if isinstance(metadata, str):
+                        metadata = json.loads(metadata)
 
-                doc = Document(
-                    id=record["id"],
-                    page_content=record["text"],
-                    metadata=metadata or {},
+                    doc = Document(
+                        id=record["id"],
+                        page_content=record["text"],
+                        metadata=metadata or {},
+                    )
+                    results.append((doc, similarity))
+        except Exception as e:
+            # If table doesn't exist (error 1146), return empty list
+            error_msg = str(e)
+            if "1146" in error_msg or "doesn't exist" in error_msg.lower():
+                logger.debug(
+                    "Table %s does not exist, returning empty results", self._table_name
                 )
-                results.append((doc, similarity))
+                return []
+            raise
 
         return results
 
@@ -1533,27 +1554,37 @@ class AlibabaCloudMySQL(VectorStore):
 
         results: List[Tuple[Document, float]] = []
 
-        async with self._aget_cursor() as cursor:
-            await cursor.execute(sql, query_params)
+        try:
+            async with self._aget_cursor() as cursor:
+                await cursor.execute(sql, query_params)
 
-            async for record in cursor:
-                distance = float(record["distance"])
-                similarity = self._distance_to_similarity(distance)
+                async for record in cursor:
+                    distance = float(record["distance"])
+                    similarity = self._distance_to_similarity(distance)
 
-                # Apply score threshold
-                if score_threshold is not None and similarity < score_threshold:
-                    continue
+                    # Apply score threshold
+                    if score_threshold is not None and similarity < score_threshold:
+                        continue
 
-                metadata = record["metadata"]
-                if isinstance(metadata, str):
-                    metadata = json.loads(metadata)
+                    metadata = record["metadata"]
+                    if isinstance(metadata, str):
+                        metadata = json.loads(metadata)
 
-                doc = Document(
-                    id=record["id"],
-                    page_content=record["text"],
-                    metadata=metadata or {},
+                    doc = Document(
+                        id=record["id"],
+                        page_content=record["text"],
+                        metadata=metadata or {},
+                    )
+                    results.append((doc, similarity))
+        except Exception as e:
+            # If table doesn't exist (error 1146), return empty list
+            error_msg = str(e)
+            if "1146" in error_msg or "doesn't exist" in error_msg.lower():
+                logger.debug(
+                    "Table %s does not exist, returning empty results", self._table_name
                 )
-                results.append((doc, similarity))
+                return []
+            raise
 
         return results
 
@@ -1574,15 +1605,26 @@ class AlibabaCloudMySQL(VectorStore):
         if not ids:
             return None
 
-        with self._get_cursor() as cursor:
-            placeholders = ",".join(["%s"] * len(ids))
-            sql = SQL_DELETE_BY_IDS.format(
-                table_name=self._table_name, placeholders=placeholders
-            )
-            cursor.execute(sql, ids)
+        try:
+            with self._get_cursor() as cursor:
+                placeholders = ",".join(["%s"] * len(ids))
+                sql = SQL_DELETE_BY_IDS.format(
+                    table_name=self._table_name, placeholders=placeholders
+                )
+                cursor.execute(sql, ids)
 
-        logger.info("Deleted %d vectors from table %s", len(ids), self._table_name)
-        return True
+            logger.info("Deleted %d vectors from table %s", len(ids), self._table_name)
+            return True
+        except Exception as e:
+            # If table doesn't exist (error 1146), deletion is considered successful
+            error_msg = str(e)
+            if "1146" in error_msg or "doesn't exist" in error_msg.lower():
+                logger.debug(
+                    "Table %s does not exist, skipping delete operation",
+                    self._table_name,
+                )
+                return True
+            raise
 
     async def adelete(
         self,
@@ -1601,15 +1643,26 @@ class AlibabaCloudMySQL(VectorStore):
         if not ids:
             return None
 
-        async with self._aget_cursor() as cursor:
-            placeholders = ",".join(["%s"] * len(ids))
-            sql = SQL_DELETE_BY_IDS.format(
-                table_name=self._table_name, placeholders=placeholders
-            )
-            await cursor.execute(sql, ids)
+        try:
+            async with self._aget_cursor() as cursor:
+                placeholders = ",".join(["%s"] * len(ids))
+                sql = SQL_DELETE_BY_IDS.format(
+                    table_name=self._table_name, placeholders=placeholders
+                )
+                await cursor.execute(sql, ids)
 
-        logger.info("Deleted %d vectors from table %s", len(ids), self._table_name)
-        return True
+            logger.info("Deleted %d vectors from table %s", len(ids), self._table_name)
+            return True
+        except Exception as e:
+            # If table doesn't exist (error 1146), deletion is considered successful
+            error_msg = str(e)
+            if "1146" in error_msg or "doesn't exist" in error_msg.lower():
+                logger.debug(
+                    "Table %s does not exist, skipping delete operation",
+                    self._table_name,
+                )
+                return True
+            raise
 
     def get_by_ids(self, ids: Sequence[str], /) -> List[Document]:
         """Get documents by their IDs.
@@ -1623,28 +1676,38 @@ class AlibabaCloudMySQL(VectorStore):
         if not ids:
             return []
 
-        with self._get_cursor() as cursor:
-            placeholders = ",".join(["%s"] * len(ids))
-            sql = SQL_GET_BY_IDS.format(
-                table_name=self._table_name, placeholders=placeholders
-            )
-            cursor.execute(sql, list(ids))
-
-            documents = []
-            for record in cursor:
-                metadata = record["metadata"]
-                if isinstance(metadata, str):
-                    metadata = json.loads(metadata)
-
-                documents.append(
-                    Document(
-                        id=record["id"],
-                        page_content=record["text"],
-                        metadata=metadata or {},
-                    )
+        try:
+            with self._get_cursor() as cursor:
+                placeholders = ",".join(["%s"] * len(ids))
+                sql = SQL_GET_BY_IDS.format(
+                    table_name=self._table_name, placeholders=placeholders
                 )
+                cursor.execute(sql, list(ids))
 
-        return documents
+                documents = []
+                for record in cursor:
+                    metadata = record["metadata"]
+                    if isinstance(metadata, str):
+                        metadata = json.loads(metadata)
+
+                    documents.append(
+                        Document(
+                            id=record["id"],
+                            page_content=record["text"],
+                            metadata=metadata or {},
+                        )
+                    )
+
+            return documents
+        except Exception as e:
+            # If table doesn't exist (error 1146), return empty list
+            error_msg = str(e)
+            if "1146" in error_msg or "doesn't exist" in error_msg.lower():
+                logger.debug(
+                    "Table %s does not exist, returning empty results", self._table_name
+                )
+                return []
+            raise
 
     async def aget_by_ids(self, ids: Sequence[str], /) -> List[Document]:
         """Async get documents by their IDs.
@@ -1658,28 +1721,38 @@ class AlibabaCloudMySQL(VectorStore):
         if not ids:
             return []
 
-        async with self._aget_cursor() as cursor:
-            placeholders = ",".join(["%s"] * len(ids))
-            sql = SQL_GET_BY_IDS.format(
-                table_name=self._table_name, placeholders=placeholders
-            )
-            await cursor.execute(sql, list(ids))
-
-            documents = []
-            async for record in cursor:
-                metadata = record["metadata"]
-                if isinstance(metadata, str):
-                    metadata = json.loads(metadata)
-
-                documents.append(
-                    Document(
-                        id=record["id"],
-                        page_content=record["text"],
-                        metadata=metadata or {},
-                    )
+        try:
+            async with self._aget_cursor() as cursor:
+                placeholders = ",".join(["%s"] * len(ids))
+                sql = SQL_GET_BY_IDS.format(
+                    table_name=self._table_name, placeholders=placeholders
                 )
+                await cursor.execute(sql, list(ids))
 
-        return documents
+                documents = []
+                async for record in cursor:
+                    metadata = record["metadata"]
+                    if isinstance(metadata, str):
+                        metadata = json.loads(metadata)
+
+                    documents.append(
+                        Document(
+                            id=record["id"],
+                            page_content=record["text"],
+                            metadata=metadata or {},
+                        )
+                    )
+
+            return documents
+        except Exception as e:
+            # If table doesn't exist (error 1146), return empty list
+            error_msg = str(e)
+            if "1146" in error_msg or "doesn't exist" in error_msg.lower():
+                logger.debug(
+                    "Table %s does not exist, returning empty results", self._table_name
+                )
+                return []
+            raise
 
     @classmethod
     def from_texts(
