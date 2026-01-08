@@ -22,7 +22,7 @@ from typing import Generator
 
 import pytest
 from langchain_core.vectorstores import VectorStore
-from langchain_tests.integration_tests.vectorstores import VectorStoreIntegrationTests
+from langchain_tests.integration_tests import VectorStoreIntegrationTests
 
 # Load environment variables from .env file
 try:
